@@ -1,0 +1,56 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+*.iml
+.idea/
+.vscode/
+*.lock
+*.g.dart
+*.freezed.dart
+
+# Android
+android/app/build/
+android/.gradle/
+android/local.properties
+android/key.properties
+*.jks
+*.keystore
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# Environment
+.env
+*.env
+*.env.*
+secrets/
+
+# Local workspace metadata
+CLAUDE.md
+devtools_options.yaml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+*.swp
+*.swo
+coverage/
+.flutter-plugins-dependencies
+
+# Local data / ops
+*.db
+*.sqlite
+*.sqlite3
+devlog/
+android/*.cer
+android/*.pem
+
+# Keep Flutter app lockfile tracked
+!pubspec.lock

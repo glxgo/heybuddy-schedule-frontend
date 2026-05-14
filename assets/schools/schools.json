@@ -1,0 +1,812 @@
+{
+  "provinces": {
+    "上海": [
+      {
+        "name": "上海中侨职业技术大学",
+        "type": "generic",
+        "url": "https://cas.shzq.edu.cn/cas/login?service=https://jw.shzq.edu.cn/sso/ddlogin",
+        "adapterId": "SHZQ_01",
+        "schoolId": "SHZQ",
+        "maintainer": "Kredenk"
+      }
+    ],
+    "云南": [
+      {
+        "name": "云南财经大学本科",
+        "type": "generic",
+        "url": "https://xjwis.ynufe.edu.cn/jsxsd/",
+        "adapterId": "YNUFE_01\" # 采用数字编号规范",
+        "schoolId": "YNUFE",
+        "maintainer": "AxelPLN"
+      }
+    ],
+    "其他": [
+      {
+        "name": "宿州学院青果",
+        "type": "generic",
+        "url": "http://211.86.128.194/suzxyjw/cas/login.action",
+        "adapterId": "AHSZU_01",
+        "schoolId": "AHSZU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "强智",
+        "type": "generic",
+        "url": "https://cquet.edu.cn/",
+        "adapterId": "CQUET_01",
+        "schoolId": "CQUET",
+        "maintainer": "Mutx666"
+      },
+      {
+        "name": "三峡大学",
+        "type": "zhengfang",
+        "url": "http://jwxt.ctgu.edu.cn/jwapp/sys/yjsrzfwapp/dbLogin/main.do",
+        "adapterId": "CTGU",
+        "schoolId": "CTGU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "桂林医科大学",
+        "type": "generic",
+        "url": "https://ejwc.glmu.edu.cn/",
+        "adapterId": "GLMU_01",
+        "schoolId": "GLMU",
+        "maintainer": "xhh李"
+      },
+      {
+        "name": "桂林信息科技学院",
+        "type": "generic",
+        "url": "https://172-16-18-132.webvpn.guit.edu.cn",
+        "adapterId": "GUIT_01",
+        "schoolId": "GUIT",
+        "maintainer": "Mercury"
+      },
+      {
+        "name": "淮北理工学院强智适配",
+        "type": "generic",
+        "url": "https://a.hblgxy.edu.cn:5111/jsxsd/",
+        "adapterId": "HBLGXY_01",
+        "schoolId": "HBLGXY",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "华侨大学",
+        "type": "generic",
+        "url": "https://atrust.hqu.edu.cn/portal/?redirectid=0.6668972084789097#/login",
+        "adapterId": "HQU",
+        "schoolId": "HQU",
+        "maintainer": "Xuan-Xuann"
+      },
+      {
+        "name": "衡阳师范学院强智适配",
+        "type": "generic",
+        "url": "https://hysfjw.hynu.edu.cn/jsxsd/",
+        "adapterId": "HYNU_01",
+        "schoolId": "HYNU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "暨南大学金智",
+        "type": "generic",
+        "url": "https://jw.jnu.edu.cn",
+        "adapterId": "JNU_01",
+        "schoolId": "JNU",
+        "maintainer": "White-Dew-Boy"
+      },
+      {
+        "name": "济源职业技术学院",
+        "type": "generic",
+        "url": "https://jwgl.jyvtc.edu.cn/jyvtcjw/",
+        "adapterId": "JYVTC_01\" #",
+        "schoolId": "JYVTC",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "喀什大学正方",
+        "type": "generic",
+        "url": "https://cas.ksu.edu.cn/cas/login?service=https://jwnet.ksu.edu.cn/sso/ddlogin",
+        "adapterId": "KSU_01",
+        "schoolId": "KSU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "茂名职业技术学院课表",
+        "type": "generic",
+        "url": "https://jwc.mmpt.edu.cn/xtgl/login_slogin.html",
+        "adapterId": "MMPT",
+        "schoolId": "MMPT",
+        "maintainer": "一颗"
+      },
+      {
+        "name": "宁波工程学院教务系统适配",
+        "type": "generic",
+        "url": "http://jwxt.nbut.edu.cn/jwglxt/xtgl/login_slogin.html",
+        "adapterId": "NBUT_01",
+        "schoolId": "NBUT",
+        "maintainer": "xiekeqing"
+      },
+      {
+        "name": "东北农业大学适配",
+        "type": "generic",
+        "url": "https://webvpn.neau.edu.cn/",
+        "adapterId": "NEAU_01",
+        "schoolId": "NEAU",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "东北师范大学适配",
+        "type": "generic",
+        "url": "https://bkjx.nenu.edu.cn/",
+        "adapterId": "NENU_01",
+        "schoolId": "NENU",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "东北大学金智教育教务适配",
+        "type": "generic",
+        "url": "http://jwxt.neu.edu.cn/",
+        "adapterId": "NEU_1",
+        "schoolId": "NEU",
+        "maintainer": "Vera-zero"
+      },
+      {
+        "name": "东北大学秦皇岛分校树维",
+        "type": "generic",
+        "url": "https://jwxt.neuq.edu.cn",
+        "adapterId": "NEUQ",
+        "schoolId": "NEUQ",
+        "maintainer": "aryunm"
+      },
+      {
+        "name": "中南民族大学",
+        "type": "generic",
+        "url": "https://webvpn.scuec.edu.cn/",
+        "adapterId": "SCUEC",
+        "schoolId": "SCUEC",
+        "maintainer": "Zellon0w0"
+      },
+      {
+        "name": "华南理工大学webvpn适配",
+        "type": "generic",
+        "url": "https://xsjw2018-jw.webvpn.scut.edu.cn/",
+        "adapterId": "SCUT_01",
+        "schoolId": "SCUT",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "华南理工大学内网适配",
+        "type": "generic",
+        "url": "http://xsjw2018.jw.scut.edu.cn/",
+        "adapterId": "SCUT_02",
+        "schoolId": "SCUT",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "塔里木大学正方",
+        "type": "generic",
+        "url": "https://auth.taru.edu.cn/cas/login?service=https%3A%2F%2Fhall.taru.edu.cn%2FserviceHall",
+        "adapterId": "TARU_01",
+        "schoolId": "TARU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "同济大学 1 系统",
+        "type": "generic",
+        "url": "https://1.tongji.edu.cn/",
+        "adapterId": "TONGJI_01",
+        "schoolId": "TONGJI",
+        "maintainer": "Linho1219"
+      },
+      {
+        "name": "泰山学院青果",
+        "type": "generic",
+        "url": "http://jwxt.tsu.edu.cn",
+        "adapterId": "TSU_01",
+        "schoolId": "TSU",
+        "maintainer": "素绫理"
+      },
+      {
+        "name": "中国石油大学(华东)教务适配",
+        "type": "generic",
+        "url": "https://webvpn.upc.edu.cn/users/sign_in",
+        "adapterId": "UPC",
+        "schoolId": "UPC",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "枣庄学院正方",
+        "type": "generic",
+        "url": "https://iam.uzz.edu.cn/esc-sso/login/page",
+        "adapterId": "UZZ_01",
+        "schoolId": "UZZ",
+        "maintainer": "素绫理"
+      },
+      {
+        "name": "徐州工程学院",
+        "type": "generic",
+        "url": "http://jwglxt.xzit.edu.cn/jwglxt/xtgl/login_slogin.html",
+        "adapterId": "XZIT_01",
+        "schoolId": "XZIT",
+        "maintainer": "盐泡"
+      },
+      {
+        "name": "长江大学教务系统适配",
+        "type": "generic",
+        "url": "https://cas-yangtzeu-edu-cn.atrust.yangtzeu.edu.cn/authserver/login?service=https%3A%2F%2Fatrust.yangtzeu.edu.cn%3A4443%2Fpassport%2Fv1%2Fauth%2Fcas%3FsfDomain%3DCAS",
+        "adapterId": "YU_01",
+        "schoolId": "YANGTZEU",
+        "maintainer": "Jursin"
+      },
+      {
+        "name": "宜宾学院教务系统适配",
+        "type": "generic",
+        "url": "https://authserver.yibinu.edu.cn/authserver/login?service=https://ehall.yibinu.edu.cn:443/login?service=https://ehall.yibinu.edu.cn/new/index.html",
+        "adapterId": "YIBINU_01",
+        "schoolId": "YIBINU",
+        "maintainer": "空灵"
+      },
+      {
+        "name": "强智教务 - 学期理论课表",
+        "type": "generic",
+        "url": "https://edu-admin.zhku.edu.cn/",
+        "adapterId": "ZHKU_00",
+        "schoolId": "ZHKU",
+        "maintainer": "lc6464"
+      },
+      {
+        "name": "超星",
+        "type": "generic",
+        "url": "https://chaoxing_jiaowu.edu.cn",
+        "adapterId": "chaoxing",
+        "schoolId": "chaoxing_jiaowu",
+        "maintainer": "b1n23"
+      },
+      {
+        "name": "青果教务html通用获取",
+        "type": "generic",
+        "url": "https://qingguo_jiaowu.edu.cn",
+        "adapterId": "qingguo_01",
+        "schoolId": "qingguo_jiaowu",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "URP教务通用获取",
+        "type": "generic",
+        "url": "https://urp_jiaowu.edu.cn",
+        "adapterId": "urp_01",
+        "schoolId": "urp_jiaowu",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "正方教务html通用获取",
+        "type": "generic",
+        "url": "https://zhengfang_jiaowu.edu.cn",
+        "adapterId": "zhengfang_01",
+        "schoolId": "zhengfang_jiaowu",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "内蒙古": [
+      {
+        "name": "呼和浩特民族学院",
+        "type": "generic",
+        "url": "https://webvpn.imnc.edu.cn",
+        "adapterId": "IMNC_01",
+        "schoolId": "IMNC",
+        "maintainer": "浮笙-WindDrift"
+      },
+      {
+        "name": "内蒙古工业大学教务处适配",
+        "type": "generic",
+        "url": "http://jw.imut.edu.cn/academic/login/imut/loginIds6Valid.jsp",
+        "adapterId": "IMUT_01",
+        "schoolId": "IMUT",
+        "maintainer": "wuko233"
+      }
+    ],
+    "北京": [
+      {
+        "name": "北京邮电大学",
+        "type": "generic",
+        "url": "https://jwgl.bupt.edu.cn/jsxsd/",
+        "adapterId": "BUPT_01",
+        "schoolId": "BUPT",
+        "maintainer": "cstkn"
+      },
+      {
+        "name": "中国石油大学(北京)本科",
+        "type": "generic",
+        "url": "https://bk.cup.edu.cn/student/",
+        "adapterId": "CUP_01",
+        "schoolId": "CUP",
+        "maintainer": "larryyan"
+      },
+      {
+        "name": "中国石油大学(北京)研究生",
+        "type": "generic",
+        "url": "https://gmis.cup.edu.cn/gmis/student/default/index",
+        "adapterId": "CUP_02",
+        "schoolId": "CUP",
+        "maintainer": "larryyan"
+      },
+      {
+        "name": "中国石油大学(北京)克拉玛依校区本科",
+        "type": "generic",
+        "url": "https://eams.cupk.edu.cn/student/",
+        "adapterId": "CUPK_01",
+        "schoolId": "CUPK",
+        "maintainer": "ARK-VALLEY"
+      }
+    ],
+    "吉林": [
+      {
+        "name": "长春工程学院强智",
+        "type": "generic",
+        "url": "https://webvpn.ccit.edu.cn/auth/login",
+        "adapterId": "CCIT",
+        "schoolId": "CCIT",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "长春理工大学",
+        "type": "generic",
+        "url": "https://mysso.cust.edu.cn/cas/login?service=https://jwgl.cust.edu.cn/welcome",
+        "adapterId": "CUST_01",
+        "schoolId": "CUST",
+        "maintainer": "itdong"
+      }
+    ],
+    "四川": [
+      {
+        "name": "成都航空职业技术大学金智新",
+        "type": "generic",
+        "url": "https://jwxt.cap.edu.cn/jwapp/sys/homeapp/home/index.html?av=&contextPath=/jwapp#/",
+        "adapterId": "CAPU",
+        "schoolId": "CAPU",
+        "maintainer": "Xuan-Xuann"
+      },
+      {
+        "name": "成都医学院",
+        "type": "generic",
+        "url": "https://jwweb.cmc.edu.cn/",
+        "adapterId": "CMC_01",
+        "schoolId": "CMC",
+        "maintainer": "linlinli000"
+      },
+      {
+        "name": "新版成都信息工程大学",
+        "type": "generic",
+        "url": "https://ywtb.cuit.edu.cn/",
+        "adapterId": "CUIT_01",
+        "schoolId": "CUIT",
+        "maintainer": "csy214-beep(Pfolg)"
+      },
+      {
+        "name": "旧版成都信息工程大学",
+        "type": "generic",
+        "url": "https://jwc.cuit.edu.cn/",
+        "adapterId": "CUIT_02",
+        "schoolId": "CUIT",
+        "maintainer": "csy214-beep(Pfolg)"
+      },
+      {
+        "name": "成都银杏酒店管理学院",
+        "type": "zhengfang",
+        "url": "http://zfjw.gingkoc.edu.cn/xtgl/login_slogin.html",
+        "adapterId": "YXHMC",
+        "schoolId": "YXHMC",
+        "maintainer": "Xuan-Xuann"
+      }
+    ],
+    "天津": [
+      {
+        "name": "天津城建大学URP",
+        "type": "generic",
+        "url": "https://authserver.tcu.edu.cn/authserver/login?service=https%3A%2F%2Fjwxs.tcu.edu.cn%2Flogin",
+        "adapterId": "TCU_01",
+        "schoolId": "TCU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "天津农学院树维",
+        "type": "generic",
+        "url": "http://jwxt.tjau.edu.cn/eams/homeExt.action",
+        "adapterId": "TJAU",
+        "schoolId": "TJAU",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "山东": [
+      {
+        "name": "山东华宇工学院正方",
+        "type": "generic",
+        "url": "http://jwgl.huayu.edu.cn/jwglxt/xtgl/login_slogin.html",
+        "adapterId": "HUAYU_01",
+        "schoolId": "HUAYU",
+        "maintainer": "Noxiouskoala1"
+      },
+      {
+        "name": "山东药品食品职业学院",
+        "type": "generic",
+        "url": "http://cas.sddfvc.edu.cn/login?type=usernamepassword&service=http%3A%2F%2Ffazhan.sddfvc.edu.cn%2Fjs%2Ffzzx%2Flogin",
+        "adapterId": "SDDFVC",
+        "schoolId": "SDDFVC",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "山东石油化工学院",
+        "type": "generic",
+        "url": "https://webvpn.sdipct.edu.cn/https/77726476706e69737468656265737421fae0598869236c596e0b9de29d51367bd943/",
+        "adapterId": "SDIPCT",
+        "schoolId": "SDIPCT",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "山东师范大学",
+        "type": "generic",
+        "url": "http://jwxt.sdnu.edu.cn/jwglxt/xtgl/login_slogin.html",
+        "adapterId": "SDNU",
+        "schoolId": "SDNU",
+        "maintainer": "LiquoriceHy"
+      },
+      {
+        "name": "济南大学",
+        "type": "generic",
+        "url": "https://sso.ujn.edu.cn/tpass/login?service=http%3A%2F%2Fjwgl.ujn.edu.cn%2Fsso%2Fdriotlogin",
+        "adapterId": "UJN_01",
+        "schoolId": "UJN",
+        "maintainer": "Moyu"
+      }
+    ],
+    "山西": [
+      {
+        "name": "山西工程职业学院超星教务适配",
+        "type": "generic",
+        "url": "https://sxevc.jw.chaoxing.com/admin/login",
+        "adapterId": "SXGCXY_01",
+        "schoolId": "SXGCXY",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "广东": [
+      {
+        "name": "广东轻工职业技术大学",
+        "type": "generic",
+        "url": "https://jw.gdipu.edu.cn",
+        "adapterId": "GDIPU_01",
+        "schoolId": "GDIPU",
+        "maintainer": "LittleArray"
+      },
+      {
+        "name": "广东药科大学正方",
+        "type": "generic",
+        "url": "https://webvpn.gdpu.edu.cn/https/77726476706e69737468656265737421f3f652d220347845300d8db9d6562d/lyuapServer/login?service=https%3A%2F%2Fjwsys.gdpu.edu.cn%2Fsso%2Flyiotlogin",
+        "adapterId": "GDPU_01",
+        "schoolId": "GDPU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "广东科技学院正方",
+        "type": "generic",
+        "url": "https://webvpn.gdust.edu.cn/https/77726476706e69737468656265737421f3f652d220347d436a468ca88d1b203b/cas/?service=https%3A%2F%2Fwebvpn.gdust.edu.cn%2Flogin%3Fcas_login%3Dtrue",
+        "adapterId": "GDUST",
+        "schoolId": "GDUST",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "广州松田职业学院",
+        "type": "generic",
+        "url": "https://jw.educationgroup.cn/gzstzyxy_jsxsd/",
+        "adapterId": "GZST",
+        "schoolId": "GZST",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "广西": [
+      {
+        "name": "广西电力职业技术学院强智",
+        "type": "generic",
+        "url": "https://jw.gxdlxy.com/jsxsd/framework/xsMain.jsp",
+        "adapterId": "GXDLXY_01",
+        "schoolId": "GXDLXY",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "新疆": [
+      {
+        "name": "新疆工程学院强智适配",
+        "type": "generic",
+        "url": "https://authserver.xjie.edu.cn/authserver/login?service=https%3A%2F%2Fjwxt.xjie.edu.cn%2Fjsxsd%2F",
+        "adapterId": "XJIE_01",
+        "schoolId": "XJIE",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "江苏": [
+      {
+        "name": "江苏师范大学适配",
+        "type": "generic",
+        "url": "https://i.jsnu.edu.cn/home",
+        "adapterId": "JSNU_01",
+        "schoolId": "JSNU",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "南京林业大学",
+        "type": "generic",
+        "url": "https://jwxt.njfu.edu.cn/sso.jsp",
+        "adapterId": "NJFU_01",
+        "schoolId": "NJFU",
+        "maintainer": "Mercury"
+      },
+      {
+        "name": "南京师范大学金智",
+        "type": "generic",
+        "url": "https://authserver.nnu.edu.cn/authserver/login?service=https://hsnnu.nnu.edu.cn/login",
+        "adapterId": "NJNU",
+        "schoolId": "NJNU",
+        "maintainer": "aryunm"
+      },
+      {
+        "name": "苏州大学",
+        "type": "generic",
+        "url": "http://xk.suda.edu.cn/",
+        "adapterId": "SUDA_01",
+        "schoolId": "SUDA",
+        "maintainer": "BernardYan2357"
+      },
+      {
+        "name": "江苏大学",
+        "type": "generic",
+        "url": "https://jwxt.ujs.edu.cn/sso/jziotlogin",
+        "adapterId": "UJS_01",
+        "schoolId": "UJS",
+        "maintainer": "洛初 Github@gongfuture"
+      }
+    ],
+    "江西": [
+      {
+        "name": "江西飞行学院适配",
+        "type": "generic",
+        "url": "https://jwxt.jxfu.edu.cn/",
+        "adapterId": "JXFU_01",
+        "schoolId": "JXFU",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "江西理工大学强智",
+        "type": "generic",
+        "url": "https://authserver.jxust.edu.cn/authserver/login?service=https://jw.jxust.edu.cn/jsxsd/",
+        "adapterId": "JXUST",
+        "schoolId": "JXUST",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "江西师范大学",
+        "type": "zhengfang",
+        "url": "https://www.jxnu.edu.cn",
+        "adapterId": "JXNU_01",
+        "schoolId": "JXNU",
+        "maintainer": "heybuddy"
+      }
+    ],
+    "河北": [
+      {
+        "name": "河北地质大学华信学院强智",
+        "type": "generic",
+        "url": "http://61.182.88.214:8090",
+        "adapterId": "HBGUHX",
+        "schoolId": "HBGUHX",
+        "maintainer": "未来之乡"
+      }
+    ],
+    "河南": [
+      {
+        "name": "河南工业大学正方",
+        "type": "generic",
+        "url": "https://jwglxt.haut.edu.cn/jwglxt/xtgl/login_slogin.html",
+        "adapterId": "HAUT_01",
+        "schoolId": "HAUT",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "河南信息科技学院",
+        "type": "generic",
+        "url": "http://39.164.230.243:9527/#/authserver/login?redirect_uri=aHR0cDovLzM5LjE2NC4yMzAuMjQzOjkxL2VhbXMvbG9naW4uYWN0aW9u",
+        "adapterId": "HIIT_01",
+        "schoolId": "HIIT",
+        "maintainer": "Mercury"
+      },
+      {
+        "name": "河南师范大学适配",
+        "type": "generic",
+        "url": "https://jwc.htu.edu.cn/",
+        "adapterId": "HNSF_01",
+        "schoolId": "HNSF",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "河南职业技术学院课表",
+        "type": "generic",
+        "url": "https://one.hnzj.edu.cn/common-service/kcb-pc/personage/personage",
+        "adapterId": "HNZY_01",
+        "schoolId": "HNZY",
+        "maintainer": "一颗"
+      },
+      {
+        "name": "河南财经政法大学",
+        "type": "generic",
+        "url": "https://xk.huel.edu.cn",
+        "adapterId": "HUEL_01",
+        "schoolId": "HUEL",
+        "maintainer": "Mercury"
+      }
+    ],
+    "湖北": [
+      {
+        "name": "湖北医药学院",
+        "type": "generic",
+        "url": "https://jw.hbmu.edu.cn/",
+        "adapterId": "HBMU_01",
+        "schoolId": "HBMU",
+        "maintainer": "xhh李"
+      },
+      {
+        "name": "湖北汽车工业学院",
+        "type": "generic",
+        "url": "https://cas.huat.edu.cn/authserver/login?service=http%3A%2F%2Fneweas.huat.edu.cn%2Flogin",
+        "adapterId": "HUAT",
+        "schoolId": "HUAT",
+        "maintainer": "老考滤一下"
+      },
+      {
+        "name": "武汉商学院-超星",
+        "type": "generic",
+        "url": "https://webvpn.wbu.edu.cn/\"   # 这里放真实登录页",
+        "adapterId": "WBU_01",
+        "schoolId": "WBU",
+        "maintainer": "Foraes"
+      },
+      {
+        "name": "武汉船舶职业技术学院",
+        "type": "generic",
+        "url": "http://jw.wspc.edu.cn/jwapp/sys/wdkb/*default/index.do?EMAP_LANG=zh#/xskcb",
+        "adapterId": "WHCB_1\" # id加上序号",
+        "schoolId": "WHCB",
+        "maintainer": "一丝不旺"
+      }
+    ],
+    "湖南": [
+      {
+        "name": "湖南信息职业技术学院强智适配",
+        "type": "generic",
+        "url": "https://authserver.hniu.cn/authserver/login?service=https%3A%2F%2Fehall.hniu.cn%3A443%2Flogin%3Fservice%3Dhttps%3A%2F%2Fehall.hniu.cn%2Fnew%2Findex.html%3Fbrowser%3Dno%25EF%25BC%2589#StudentAffairsA",
+        "adapterId": "HNIU_01",
+        "schoolId": "HNIU",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "湖南科技大学适配",
+        "type": "generic",
+        "url": "https://kdjw.hnust.edu.cn/",
+        "adapterId": "HNUST_01",
+        "schoolId": "HNUST",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "湖南商务职业技术学院强智适配",
+        "type": "generic",
+        "url": "http://jwxt.hnvcc.edu.cn/",
+        "adapterId": "HNVCC_01",
+        "schoolId": "HNVCC",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "湖南科技学院",
+        "type": "generic",
+        "url": "http://jw.huse.cn/jsxsd",
+        "adapterId": "HUSE",
+        "schoolId": "HUSE",
+        "maintainer": "KevinZ"
+      }
+    ],
+    "甘肃": [
+      {
+        "name": "甘肃医学院正方",
+        "type": "generic",
+        "url": "https://jw.gsmc.edu.cn/jwglxt/xtgl/login_slogin.html",
+        "adapterId": "GSMC_01",
+        "schoolId": "GSMC",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "福建": [
+      {
+        "name": "福建船政交通职业学院",
+        "type": "generic",
+        "url": "https://webvpn.fjcpc.edu.cn/",
+        "adapterId": "FJCPC",
+        "schoolId": "FJCPC",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "厦门城市职业学院青果",
+        "type": "generic",
+        "url": "https://eone-443.webvpn.xmcu.edu.cn/",
+        "adapterId": "XMCU_01",
+        "schoolId": "XMCU",
+        "maintainer": "星河欲转"
+      }
+    ],
+    "辽宁": [
+      {
+        "name": "大连海事大学",
+        "type": "generic",
+        "url": "http://jw.xpaas.dlmu.edu.cn/eams",
+        "adapterId": "DLMU_01",
+        "schoolId": "DLMU",
+        "maintainer": "whynusn"
+      },
+      {
+        "name": "大连大学",
+        "type": "generic",
+        "url": "https://webvpn.dlu.edu.cn/login",
+        "adapterId": "DLU_01",
+        "schoolId": "DLU",
+        "maintainer": "platinumyrh"
+      }
+    ],
+    "重庆": [
+      {
+        "name": "重庆化工职业学院正方",
+        "type": "generic",
+        "url": "http://dc.cqcivc.cn/cas/login?service=http://jwxt.cqcivc.edu.cn/sso/zllogin",
+        "adapterId": "CQCIVC",
+        "schoolId": "CQCIVC",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "重庆城市科技学院强智适配",
+        "type": "generic",
+        "url": "http://jw.cqcst.edu.cn/cqdxcskjxy_jsxsd/",
+        "adapterId": "CQCST_01",
+        "schoolId": "CQCST",
+        "maintainer": "Mutx163"
+      },
+      {
+        "name": "重庆人文科技学院强智适配",
+        "type": "generic",
+        "url": "https://https-auth-cqrk-edu-cn-443.webvpn.cqrk.edu.cn:8480/cas/login?service=http%3A%2F%2Fportal.cqrk.edu.cn&rewrite=1",
+        "adapterId": "CQRK_01",
+        "schoolId": "CQRK",
+        "maintainer": "星河欲转"
+      },
+      {
+        "name": "重庆大学",
+        "type": "generic",
+        "url": "https://my.cqu.edu.cn/",
+        "adapterId": "CQU",
+        "schoolId": "CQU",
+        "maintainer": "茵符草"
+      }
+    ],
+    "陕西": [
+      {
+        "name": "西安理工大学适配",
+        "type": "generic",
+        "url": "http://jwgl.xaut.edu.cn/",
+        "adapterId": "XAUT_01",
+        "schoolId": "XAUT",
+        "maintainer": "dezige131"
+      },
+      {
+        "name": "西安文理学院正方",
+        "type": "generic",
+        "url": "http://jwgl.xawl.edu.cn/jwglxt/",
+        "adapterId": "XAWL_01",
+        "schoolId": "XAWL",
+        "maintainer": "星河欲转"
+      }
+    ]
+  }
+}
