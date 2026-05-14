@@ -1,104 +1,66 @@
-# 相伴课表（Frontend Only）
+# 相伴课表（HeyBuddy Schedule）
 
-相伴课表是一款面向大学生的社交化课表应用。当前这份仓库用于维护 **Flutter 客户端**。
+相伴课表是一款面向大学生的社交化课表管理应用。
+它不只是在做“看课表”，而是希望把 **课程安排、好友关系、共同空闲时间、轻量交流** 连接起来，让课表成为校园生活里的一个小入口。
 
-## 开源范围说明
+当前公开仓库主要维护 **Flutter 客户端代码**，适合用于前端开发、界面迭代、课表导入适配和产品体验改进。
 
-这个仓库在对外公开时，**只开放前端客户端代码**，不包含以下内容：
+## 项目定位
+
+相伴课表聚焦几个核心方向：
+
+- **个人课表管理**：让课程查看、编辑、调整更直观
+- **多方式导入**：支持教务系统导入与截图识别导入
+- **好友课表协同**：不仅看自己的课，也能看好友和共同空闲时间
+- **轻社交体验**：围绕课程场景延伸好友、聊天、分享等能力
+- **前端公开开源**：公开 Flutter 客户端，便于社区参与 UI、交互和适配改进
+
+## 功能介绍
+
+### 1. 账号与基础信息
+- 手机号注册、登录、找回密码
+- 学校选择、基础资料维护
+- 本地保存登录状态与部分用户设置
+
+### 2. 课表导入
+- **教务系统导入**：通过 WebView 登录教务系统后解析课程数据
+- **截图识别导入**：支持拍照或从相册选择课表截图进行识别
+- **适配器机制**：仓库内置学校与适配脚本资源，方便扩展不同教务系统
+- **导入后可调整**：导入完成后仍可手动编辑课程信息
+
+### 3. 课表展示
+- **日视图**：按时间线查看当天课程安排
+- **周视图**：按周查看完整课表
+- **好友课表**：支持查看指定好友的课表
+- **共同课表**：对比双方有课 / 无课状态，辅助约时间
+- **课表管理**：支持课程维护与表格内容调整
+
+### 4. 好友与社交
+- 手机号搜索添加好友
+- 好友请求发送、接受、拒绝
+- 好友主页与好友课表查看
+- 一对一文字聊天
+- 课程场景下的轻量社交扩展能力
+
+### 5. 个人中心
+- 个人资料展示与编辑
+- 学校 / 学期等信息切换
+- 关于页、许可信息查看
+- 面向公开仓库的基础配置与说明
+
+## 当前仓库的开源范围
+
+当前公开仓库以 **Flutter 客户端** 为主，不包含以下内容：
 
 - 后端 API 服务源码
 - 数据库 schema / 迁移 / 运维部署配置
 - 短信验证码服务配置
 - OCR 代理服务配置
 - 生产环境域名、IP、密钥、证书、签名文件
-- 任何调试日志、测试数据库、运维记录
+- 调试日志、测试数据库、运维记录等敏感资料
 
-也就是说：
+通常可公开的内容包括：
 
-- `lib/`
-- `android/`
-- `ios/`
-- `web/`
-- `pubspec.yaml`
-- `pubspec.lock`
-
-这些属于客户端可公开范围；
-
-- `server/`
-- `devlog/`
-- 本地数据库 / keystore / 私钥 / 运维资料
-
-这些不应公开。
-
-## API 地址配置
-
-客户端不会再默认指向生产 API。
-
-请在运行或打包时通过 `--dart-define` 显式传入后端地址：
-
-```bash
-flutter run --dart-define=API_BASE_URL=https://your-api.example.com/api
-```
-
-```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://your-api.example.com/api
-```
-
-如果不传，客户端会使用占位地址：
-
-```text
-https://example.com/api
-```
-
-## 本地开发建议
-
-如果你在本地自己搭后端，可以这样启动：
-
-```bash
-flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api
-```
-
-> 真机调试时请把 `127.0.0.1` 替换成你电脑局域网 IP 或可访问的测试域名。
-
-## Android 发布说明
-
-发布签名文件和密码不应进入公开仓库。
-
-本地打包依赖：
-
-- `android/key.properties`
-- 对应的 `.jks/.keystore` 文件
-
-这些都应该保留在私有环境里。
-
-## 隐私与 OCR 说明
-
-AI 拍照识图功能依赖服务端代理进行模型调用。
-
-在前端-only 开源版本中：
-
-- 不应在客户端内置第三方模型 API Key
-- 不应把生产 OCR 服务地址写死在仓库里
-- 应在 README 中明确截图会被发送到你自己配置的服务端
-
-## 前端-only 公共副本导出
-
-当前仓库仍然保留了后端和运维相关内容，用于私有开发。
-如果你准备把客户端代码公开，推荐不要直接把当前仓库改成 public，而是先导出一份前端-only 副本。
-
-仓库根目录提供了导出脚本：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\prepare_frontend_public_release.ps1
-```
-
-默认会导出到：
-
-```text
-D:\Workspace\heybuddy_schedule-public
-```
-
-它会保留：
 - `lib/`
 - `assets/`
 - `android/`
@@ -106,24 +68,142 @@ D:\Workspace\heybuddy_schedule-public
 - `web/`
 - `pubspec.yaml`
 - `pubspec.lock`
-- `README.md`
-- `.gitignore`
 
-并排除：
+不应进入公开仓库的内容包括：
+
 - `server/`
-- `devlog/`
 - 本地数据库
-- keystore / `key.properties`
-- 证书、公钥、日志、构建产物、生成文件
+- keystore / 私钥 / 证书
+- 运维资料 / 调试记录 / 生产配置
 
-> 导出后仍建议你手动复查一遍，再发布到公开仓库。
+## 技术栈
 
-## 后续建议
+### 客户端
+- **Flutter / Dart**
+- **flutter_riverpod**：状态管理
+- **go_router**：路由管理
+- **dio**：网络请求
+- **sqflite**：本地数据存储
+- **shared_preferences**：轻量配置持久化
+- **webview_flutter**：教务系统登录与页面桥接
+- **image_picker**：拍照 / 相册导入
+- **permission_handler**：权限管理
 
-如果你准备正式公开这个仓库，建议在发布前再做一轮清理：
+### 项目特点
+- 使用 `--dart-define` 注入后端地址，避免把生产 API 写死到公开仓库
+- 学校资源与适配脚本分离，便于维护扩展
+- 公开仓库聚焦客户端体验，敏感服务与部署细节保留在私有环境
 
-1. 把 `server/` 从公开仓库中剥离，或直接使用导出的前端-only 副本
-2. 删除 `devlog/`、测试数据库、证书、公钥等资料
-3. 确认 `key.properties`、`.env`、keystore 均未纳入版本控制
-4. 再检查一遍客户端里是否还有生产域名 / IP / 私有服务信息
-5. 公开前再次运行 `flutter analyze` 并手动验证登录、导入、OCR、好友等主流程
+## 项目结构
+
+```text
+heybuddy_schedule/
+├── assets/
+│   ├── adapters/      # 教务系统适配脚本
+│   ├── images/        # 图片资源
+│   └── schools/       # 学校数据
+├── lib/
+│   ├── config/        # 路由、主题、常量配置
+│   ├── models/        # 数据模型
+│   ├── providers/     # 状态管理
+│   ├── screens/       # 页面
+│   ├── services/      # 客户端服务
+│   └── widgets/       # 公共组件
+├── android/
+├── ios/
+├── web/
+├── test/
+├── pubspec.yaml
+└── README.md
+```
+
+## 快速开始
+
+### 环境要求
+- Flutter 3.x
+- Dart SDK `^3.11.5`
+
+### 安装依赖
+
+```bash
+flutter pub get
+```
+
+### 本地运行
+
+请在运行时通过 `--dart-define` 显式传入后端地址：
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://your-api.example.com/api
+```
+
+如果你在本地联调后端，也可以这样启动：
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api
+```
+
+> 真机调试时，请把 `127.0.0.1` 替换成你电脑的局域网 IP 或可访问的测试域名。
+
+### 构建发布
+
+```bash
+flutter build apk --release --dart-define=API_BASE_URL=https://your-api.example.com/api
+```
+
+如果未传入 `API_BASE_URL`，客户端会使用占位地址：
+
+```text
+https://example.com/api
+```
+
+## 开发说明
+
+### 适合参与的方向
+- UI 视觉优化
+- 页面交互体验改进
+- 课表编辑与展示细节打磨
+- 教务系统适配脚本完善
+- 导入流程与错误提示优化
+- 好友、聊天、课表联动体验增强
+
+### 公开前建议检查
+1. 确认客户端中未硬编码生产环境域名、IP、密钥或私有服务信息
+2. 确认 `key.properties`、keystore、`.env` 等文件未进入版本控制
+3. 确认 OCR、短信等能力均通过你自己的服务端承接
+4. 公开前运行一次静态检查并手动验证登录、导入、好友、聊天等主流程
+
+## 隐私与 OCR 说明
+
+AI 截图识别功能依赖服务端代理进行模型调用。
+
+在前端公开仓库中，建议始终遵循以下原则：
+
+- 不在客户端内置第三方模型 API Key
+- 不把生产 OCR 服务地址写死在仓库里
+- 在部署或二次开发时，明确告知用户截图会发送到你配置的服务端进行处理
+
+## 致谢
+
+本项目在 **教务系统适配桥接规范、适配器组织方式与相关思路** 上，参考了 [拾光课表](https://github.com/XingHeYuZhuan/shiguangschedule) 开源社区公开提供的方案。
+
+感谢拾光课表项目及其社区贡献者的工作与分享。
+
+拾光课表采用 **MIT License** 发布。依据 MIT 许可证关于 **保留原始版权声明与许可说明** 的要求，本项目在此保留来源致谢说明；如果后续分发内容中包含直接改编或移植自原项目的代码、脚本或其他受 MIT 许可覆盖的内容，也应继续保留相应的版权与许可文本。
+
+## 如何参与
+
+如果你也对校园产品、课表工具、教务适配或 Flutter 客户端开发感兴趣，欢迎通过以下方式参与：
+
+1. Fork 仓库并进行修改
+2. 提交 Pull Request
+3. 提交 Issue 反馈问题或提出建议
+
+## 相关链接
+
+- 前端仓库：[glxgo/heybuddy-schedule-frontend](https://github.com/glxgo/heybuddy-schedule-frontend)
+- 致谢项目：[XingHeYuZhuan/shiguangschedule](https://github.com/XingHeYuZhuan/shiguangschedule)
+
+---
+
+如果这个项目刚好也让你觉得“课表不该只是冷冰冰的一张表”，那欢迎一起把它打磨得更好。
