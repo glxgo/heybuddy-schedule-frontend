@@ -1,22 +1,16 @@
 # 相伴课表（HeyBuddy Schedule）
 
 相伴课表是一款面向大学生的社交化课表管理应用。
-它不只是在做“看课表”，而是希望把 **课程安排、好友关系、共同空闲时间** 连接起来，能够轻松的看到好友的课表情况。
-本仓库为仅开源前端，包含软件的前端全部源代码及相关资源。项目采用开源模式，欢迎社区开发者参与贡献和适配。
-由于每个高校的教务系统不同，如果您有能力适配教务系统，欢迎您加入我们的适配队伍。
+它不只是在做“看课表”，而是希望把 **课程安排、好友关系、共同空闲时间、轻量交流** 连接起来，让课表成为校园生活里的一个小入口。
 
-非常感谢**拾光适配仓库**提供的解析规则
+当前公开仓库已经公开 **Flutter 客户端代码**，并会在同一个仓库中逐步开放 **脱敏后的后端基础能力**。当前仓库仍以前端客户端为主，适合用于前端开发、界面迭代、课表导入适配，以及后续公共后端模块的协作完善。
 
-## 致谢拾光仓库
-本项目在 **教务系统适配桥接规范、适配器组织方式与相关思路** 上，参考了 [拾光适配仓库](https://github.com/XingHeYuZhuan/shiguang_warehouse) 开源社区公开提供的方案。
+由于每个高校的教务系统不同，如果你有能力适配教务系统，欢迎加入适配贡献队伍。
 
-感谢拾光适配仓库项目及其社区贡献者的工作与分享。
-
-拾光课表采用 **MIT License** 发布。依据 MIT 许可证关于 **保留原始版权声明与许可说明** 的要求，本项目在此保留来源致谢说明；如果后续分发内容中包含直接改编或移植自原项目的代码、脚本或其他受 MIT 许可覆盖的内容，也应继续保留相应的版权与许可文本。
-
-
+非常感谢 **拾光适配仓库** 提供的解析规则与开源思路支持。
 
 ## 预览图
+
 ![预览图1](/picture/预览.png "预览图")
 
 ## 项目定位
@@ -27,7 +21,7 @@
 - **多方式导入**：支持教务系统导入与截图识别导入
 - **好友课表协同**：不仅看自己的课，也能看好友和共同空闲时间
 - **轻社交体验**：围绕课程场景延伸好友、聊天、分享等能力
-- **前端公开开源**：公开 Flutter 客户端，便于社区参与 UI、交互和适配改进
+- **同仓库逐步开源**：当前已公开 Flutter 客户端，后续会逐步开放脱敏后的后端基础框架、通用工具与公共逻辑
 
 ## 功能介绍
 
@@ -64,16 +58,19 @@
 
 ## 当前仓库的开源范围
 
-当前公开仓库以 **Flutter 客户端** 为主，不包含以下内容：
+当前公开仓库**当前以 Flutter 客户端为主**，后续会在**同一个仓库**中逐步补充可公开的后端基础框架、通用工具、配置模板与接口示例。
 
-- 后端 API 服务源码
-- 数据库 schema / 迁移 / 运维部署配置
-- 短信验证码服务配置
-- OCR 代理服务配置
+当前**没有完整公开**以下内容：
+
+- 完整生产后端 API 服务实现
+- 真实数据库 schema / 迁移 / 运维部署配置
+- 短信验证码服务的生产实现与私有配置
+- OCR 代理服务的生产实现与私有配置
+- 管理员接口、后台管理端、权限控制、风控逻辑、盈利逻辑
 - 生产环境域名、IP、密钥、证书、签名文件
 - 调试日志、测试数据库、运维记录等敏感资料
 
-通常可公开的内容包括：
+当前通常可公开的内容包括：
 
 - `lib/`
 - `assets/`
@@ -82,13 +79,16 @@
 - `web/`
 - `pubspec.yaml`
 - `pubspec.lock`
+- `README.md`
+- 后续逐步补充的可公开后端基础模块 / 通用工具 / mock / 接口示例
 
-不应进入公开仓库的内容包括：
+不应直接进入公开仓库的内容包括：
 
-- `server/`
-- 本地数据库
+- 未经脱敏的后端生产实现
+- 真实数据库结构与生产迁移脚本
 - keystore / 私钥 / 证书
 - 运维资料 / 调试记录 / 生产配置
+- 核心业务、用户权限、风控与盈利相关实现
 
 ## 技术栈
 
@@ -103,10 +103,15 @@
 - **image_picker**：拍照 / 相册导入
 - **permission_handler**：权限管理
 
+### 后续会逐步开放的后端能力
+- 通用路由骨架与基础服务封装
+- 公共中间件、错误处理与配置模板
+- 接口示例、mock 与文档化说明
+
 ### 项目特点
 - 使用 `--dart-define` 注入后端地址，避免把生产 API 写死到公开仓库
 - 学校资源与适配脚本分离，便于维护扩展
-- 公开仓库聚焦客户端体验，敏感服务与部署细节保留在私有环境
+- 公开仓库聚焦客户端体验，并会在同仓库逐步补充可公开的后端基础能力
 
 ## 项目结构
 
@@ -165,6 +170,8 @@ flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api
 flutter build apk --release --dart-define=API_BASE_URL=https://your-api.example.com/api
 ```
 
+> 当前 Android release 仅打包 `armeabi-v7a` 和 `arm64-v8a`，不会再带上 `x86_64`。
+
 如果未传入 `API_BASE_URL`，客户端会使用占位地址：
 
 ```text
@@ -180,27 +187,36 @@ https://example.com/api
 - 教务系统适配脚本完善
 - 导入流程与错误提示优化
 - 好友、聊天、课表联动体验增强
+- 后续可公开后端基础模块与文档完善
 
 ### 公开前建议检查
 1. 确认客户端中未硬编码生产环境域名、IP、密钥或私有服务信息
 2. 确认 `key.properties`、keystore、`.env` 等文件未进入版本控制
 3. 确认 OCR、短信等能力均通过你自己的服务端承接
-4. 公开前运行一次静态检查并手动验证登录、导入、好友、聊天等主流程
+4. 如后续在同仓库加入后端代码，仅公开脱敏后的基础能力，不直接放出完整生产实现
+5. 公开前运行一次静态检查并手动验证登录、导入、好友、聊天等主流程
 
 ## 隐私与 OCR 说明
 
 AI 截图识别功能依赖服务端代理进行模型调用。
 
-在前端公开仓库中，建议始终遵循以下原则：
+在公开仓库中，建议始终遵循以下原则：
 
-- 不在客户端内置第三方模型 API Key
+- 不在客户端或公开后端模块内置第三方模型 API Key
 - 不把生产 OCR 服务地址写死在仓库里
 - 在部署或二次开发时，明确告知用户截图会发送到你配置的服务端进行处理
 
+## 致谢
+
+本项目在 **教务系统适配桥接规范、适配器组织方式与相关思路** 上，参考了 [拾光课程表主仓库](https://github.com/XingHeYuZhuan/shiguangschedule) 与 [拾光适配仓库](https://github.com/XingHeYuZhuan/shiguang_warehouse) 开源社区公开提供的方案。
+
+感谢拾光课程表项目及其社区贡献者的工作与分享。
+
+拾光课程表采用 **MIT License** 发布。依据 MIT 许可证关于 **保留原始版权声明与许可说明** 的要求，本项目在此保留来源致谢说明；如果后续分发内容中包含直接改编或移植自原项目的代码、脚本或其他受 MIT 许可覆盖的内容，也应继续保留相应的版权与许可文本。
 
 ## 如何参与
 
-如果你也对校园产品、课表工具、教务适配或 Flutter 客户端开发感兴趣，欢迎通过以下方式参与：
+如果你也对校园产品、课表工具、教务适配、Flutter 客户端开发或后端基础能力建设感兴趣，欢迎通过以下方式参与：
 
 1. Fork 仓库并进行修改
 2. 提交 Pull Request
@@ -208,14 +224,16 @@ AI 截图识别功能依赖服务端代理进行模型调用。
 
 ## 相关链接
 
-- 前端仓库：[glxgo/heybuddy-schedule-frontend](https://github.com/glxgo/heybuddy-schedule-frontend)
+- 开源仓库：[glxgo/heybuddy-schedule-frontend](https://github.com/glxgo/heybuddy-schedule-frontend)
+- 致谢项目：[XingHeYuZhuan/shiguangschedule](https://github.com/XingHeYuZhuan/shiguangschedule)
 
 ## 拾光课程表相关链接
 
 - 主页：[https://github.com/XingHeYuZhuan/shiguangschedule](https://github.com/XingHeYuZhuan/shiguangschedule)
 - 适配脚本仓库：[https://github.com/XingHeYuZhuan/shiguang_warehouse](https://github.com/XingHeYuZhuan/shiguang_warehouse)
-- 查看如何适配,Wiki：[https://github.com/XingHeYuZhuan/shiguangschedule/wiki](https://github.com/XingHeYuZhuan/shiguangschedule/wiki)
-- 浏览器测试插件:[https://github.com/XingHeYuZhuan/shiguang_Tester](https://github.com/XingHeYuZhuan/shiguang_Tester)  
+- 查看如何适配, Wiki：[https://github.com/XingHeYuZhuan/shiguangschedule/wiki](https://github.com/XingHeYuZhuan/shiguangschedule/wiki)
+- 浏览器测试插件：[https://github.com/XingHeYuZhuan/shiguang_Tester](https://github.com/XingHeYuZhuan/shiguang_Tester)
+
 ---
 
 如果这个项目刚好也让你觉得“课表不该只是冷冰冰的一张表”，那欢迎一起把它打磨得更好。

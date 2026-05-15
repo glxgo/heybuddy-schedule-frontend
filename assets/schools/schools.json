@@ -336,6 +336,14 @@
         "adapterId": "CUPK_01",
         "schoolId": "CUPK",
         "maintainer": "ARK-VALLEY"
+      },
+      {
+        "name": "北方工业大学",
+        "type": "generic",
+        "url": "https://jwxtbk.ncut.edu.cn/jsxsd/",
+        "adapterId": "NCUT_01",
+        "schoolId": "NCUT",
+        "maintainer": "EnderHCO3"
       }
     ],
     "吉林": [
@@ -494,6 +502,14 @@
         "maintainer": "星河欲转"
       },
       {
+        "name": "佛山大学",
+        "type": "generic",
+        "url": "https://100.fosu.edu.cn/",
+        "adapterId": "FOSU_01",
+        "schoolId": "FOSU",
+        "maintainer": "e7g"
+      },
+      {
         "name": "广州松田职业学院",
         "type": "generic",
         "url": "https://jw.educationgroup.cn/gzstzyxy_jsxsd/",
@@ -584,7 +600,7 @@
       {
         "name": "江西师范大学",
         "type": "zhengfang",
-        "url": "https://www.jxnu.edu.cn",
+        "url": "https://jwc.jxnu.edu.cn/",
         "adapterId": "JXNU_01",
         "schoolId": "JXNU",
         "maintainer": "heybuddy"

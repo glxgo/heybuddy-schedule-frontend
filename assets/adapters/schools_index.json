@@ -180,6 +180,15 @@
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
+    "schoolId": "FOSU",
+    "adapterId": "FOSU_01",
+    "adapterName": "佛山大学强智教务系统",
+    "importUrl": "https://100.fosu.edu.cn/",
+    "jsFile": "fosu_01.js",
+    "maintainer": "e7g",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
     "schoolId": "GDIPU",
     "adapterId": "GDIPU_01",
     "adapterName": "广东轻工职业技术大学教务",
@@ -492,6 +501,15 @@
     "importUrl": "http://jwxt.nbut.edu.cn/jwglxt/xtgl/login_slogin.html",
     "jsFile": "nbut.js",
     "maintainer": "xiekeqing",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "NCUT",
+    "adapterId": "NCUT_01",
+    "adapterName": "北方工业大学-教务系统",
+    "importUrl": "https://jwxtbk.ncut.edu.cn/jsxsd/",
+    "jsFile": "ncut_01.js",
+    "maintainer": "EnderHCO3",
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
@@ -858,8 +876,8 @@
     "schoolId": "JXNU",
     "adapterId": "JXNU_01",
     "adapterName": "江西师范大学正方教务",
-    "importUrl": "https://www.jxnu.edu.cn",
-    "jsFile": "jxnu_01.js",
+    "importUrl": "https://jwc.jxnu.edu.cn/",
+    "jsFile": "jxnu.js",
     "maintainer": "heybuddy",
     "category": "BACHELOR_AND_ASSOCIATE"
   }

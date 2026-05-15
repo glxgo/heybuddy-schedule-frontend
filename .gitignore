@@ -22,6 +22,14 @@ ios/Pods/
 ios/.symlinks/
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
+*.p12
+*.mobileprovision
+*.provisionprofile
+
+# Mobile service config
+GoogleService-Info.plist
+google-services.json
+firebase_options.dart
 
 # Environment
 .env
@@ -49,8 +57,10 @@ coverage/
 *.sqlite
 *.sqlite3
 devlog/
-android/*.cer
-android/*.pem
+*.cer
+*.pem
+*.crt
+*.key
 
 # Keep Flutter app lockfile tracked
 !pubspec.lock

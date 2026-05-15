@@ -1,4 +1,4 @@
-// 文件: JXNU_01.js
+// 文件: jxnu.js
 // 功能：从江西师范大学正方教务系统获取课程表，用 DOM 解析后导入到拾光课程表
 // 适配：正方教务系统（当前页面 DOM 解析）
 // 维护者：heybuddy
@@ -70,25 +70,47 @@ function isPeriodLabel(text) {
     if (!t) return false;
 
     const cleaned = t.replace(/\s+/g, '');
-    if (/^[1-9]$/.test(cleaned)) return true;
-    if (/^(1[0-3]?)$/.test(cleaned) && parseInt(cleaned) <= UNIT_COUNT) return true;
-    if (/^\d{1,2}[-–,]\d{1,2}$/.test(cleaned)) {
-        const parts = cleaned.split(/[-–,]/);
-        const s = parseInt(parts[0]);
-        const e = parseInt(parts[1]);
+    const normalized = cleaned.replace(/^第/, '').replace(/节$/, '');
+
+    if (/^[1-9]$/.test(normalized)) return true;
+    if (/^(1[0-3]?)$/.test(normalized) && parseInt(normalized) <= UNIT_COUNT) return true;
+
+    const rangeMatch = normalized.match(/^(\d{1,2})(?:[-–—~～,]|至)(\d{1,2})$/);
+    if (rangeMatch) {
+        const s = parseInt(rangeMatch[1]);
+        const e = parseInt(rangeMatch[2]);
         if (s >= 1 && e <= UNIT_COUNT && s <= e) return true;
     }
+
+    const rawTokens = (t.match(/\d{1,2}/g) || []).map(n => parseInt(n, 10));
+    if (rawTokens.length >= 2 && rawTokens.every(n => n >= 1 && n <= UNIT_COUNT)) {
+        const stripped = t.replace(/\d{1,2}/g, '').replace(/[第节\s]/g, '');
+        if (!stripped) return true;
+    }
+
     if (t.includes('晚') && (t.includes('上') || t.includes('自'))) return true;
     return false;
 }
 
 /**
  * 从节次标签文本解析出节次数字数组
- * "1" → [1], "3-4" → [3,4], "1\n2" → [1,2], "晚上" → [11,12,13]
+ * "1" → [1], "3-4" → [3,4], "第6-7节" → [6,7], "6 7" → [6,7], "晚上" → [10,11,12]
  */
 function parsePeriodText(text) {
     const t = text.trim();
-    if (t.includes('晚')) return [11, 12, 13];
+    if (!t) return [];
+    if (t.includes('晚') && (t.includes('上') || t.includes('自'))) return [10, 11, 12];
+
+    const rawTokens = (t.match(/\d{1,2}/g) || [])
+        .map(n => parseInt(n, 10))
+        .filter(n => n >= 1 && n <= UNIT_COUNT);
+    if (rawTokens.length >= 2) {
+        const stripped = t.replace(/\d{1,2}/g, '').replace(/[第节\s]/g, '');
+        if (!stripped) {
+            const nums = [...new Set(rawTokens)].sort((a, b) => a - b);
+            if (nums[nums.length - 1] - nums[0] + 1 === nums.length) return nums;
+        }
+    }
 
     // 优先检查原始文本中是否有换行或空白分隔符（如 "1\n2"）
     // 按 \n 或空白分割，每个部分独立解析为单个节次
@@ -97,7 +119,7 @@ function parsePeriodText(text) {
         if (parts.length >= 2) {
             const nums = [];
             for (const p of parts) {
-                const n = parseInt(p);
+                const n = parseInt(p, 10);
                 if (n >= 1 && n <= UNIT_COUNT && !nums.includes(n)) nums.push(n);
             }
             if (nums.length >= 2) { nums.sort((a, b) => a - b); return nums; }
@@ -105,10 +127,12 @@ function parsePeriodText(text) {
     }
 
     const cleaned = t.replace(/\s+/g, '');
-    const rangeMatch = cleaned.match(/^(\d{1,2})[-–,]\s*(\d{1,2})$/);
+    const normalized = cleaned.replace(/^第/, '').replace(/节$/, '');
+
+    const rangeMatch = normalized.match(/^(\d{1,2})(?:[-–—~～,]|至)(\d{1,2})$/);
     if (rangeMatch) {
-        const start = parseInt(rangeMatch[1]);
-        const end = parseInt(rangeMatch[2]);
+        const start = parseInt(rangeMatch[1], 10);
+        const end = parseInt(rangeMatch[2], 10);
         if (start >= 1 && end <= UNIT_COUNT && start <= end) {
             const result = [];
             for (let i = start; i <= end; i++) result.push(i);
@@ -116,39 +140,17 @@ function parsePeriodText(text) {
         }
     }
 
-    // 检查 cleaned 是否可以拆分为多个单个数字（如 "12" → [1,2]）
-    // 规则：如果 cleaned 长度 > 1 且每个字符都是 1-9 的数字
-    if (cleaned.length > 1) {
-        const allSingleDigits = [...cleaned].every(ch => /^[1-9]$/.test(ch));
-        if (allSingleDigits) {
-            const nums = [];
-            for (const ch of cleaned) {
-                const n = parseInt(ch);
-                if (!nums.includes(n)) nums.push(n);
-            }
-            nums.sort((a, b) => a - b);
-            // 确认是连续的区间
-            if (nums.length >= 2 && nums[nums.length - 1] - nums[0] + 1 === nums.length) {
-                return nums;
-            }
-        }
-    }
-
-    const singleMatch = cleaned.match(/^(\d{1,2})$/);
+    const singleMatch = normalized.match(/^(\d{1,2})$/);
     if (singleMatch) {
-        const num = parseInt(singleMatch[1]);
+        const num = parseInt(singleMatch[1], 10);
         if (num >= 1 && num <= UNIT_COUNT) return [num];
     }
 
-    // 逐个字符解析兜底
-    const nums = [];
-    for (let i = 0; i < cleaned.length; i++) {
-        const n = parseInt(cleaned[i]);
-        if (n >= 1 && n <= 9 && !nums.includes(n)) nums.push(n);
-    }
+    const nums = (normalized.match(/\d{1,2}/g) || [])
+        .map(n => parseInt(n, 10))
+        .filter(n => n >= 1 && n <= UNIT_COUNT);
     if (nums.length > 0) {
-        nums.sort((a, b) => a - b);
-        return nums;
+        return [...new Set(nums)].sort((a, b) => a - b);
     }
     return [];
 }
@@ -270,17 +272,22 @@ function parseCourseTableFromCurrentPage() {
         const cells = row.cells;
         if (cells.length < 2) {
             console.log(`[JXNU]   行 ${r}: 只有 ${cells.length} 格（分隔行）`);
-            continue;
         }
 
         // ---- 用 Column-pass 算法遍历 ----
-        // 按 header 列顺序扫，跳过 rowspan 覆盖的列
+        // 必须完整扫过每一列表头位，哪怕当前行可见单元格已经用完，
+        // 否则末尾列的 rowspan 不会在这一行递减，后续行会整体错位。
         let periodText = '', foundPeriod = false;
         let periods = [], courseData = [];
         let cellIdx = 0;
 
-        for (let col = 0; col < totalCols && cellIdx < cells.length; col++) {
-            if (rowspanActive[col] > 0) { rowspanActive[col]--; continue; }
+        for (let col = 0; col < totalCols; col++) {
+            if (rowspanActive[col] > 0) {
+                rowspanActive[col]--;
+                continue;
+            }
+
+            if (cellIdx >= cells.length) continue;
 
             const cell = cells[cellIdx++];
             if (cell.rowSpan > 1) rowspanActive[col] = cell.rowSpan - 1;
@@ -382,19 +389,18 @@ function parseCourseTableFromCurrentPage() {
 
 function getTimeSlots() {
     return [
-        { number: 1, startTime: "08:00", endTime: "08:45" },
-        { number: 2, startTime: "08:50", endTime: "09:35" },
-        { number: 3, startTime: "09:50", endTime: "10:35" },
-        { number: 4, startTime: "10:40", endTime: "11:25" },
-        { number: 5, startTime: "11:30", endTime: "12:15" },
-        { number: 6, startTime: "14:00", endTime: "14:45" },
-        { number: 7, startTime: "14:50", endTime: "15:35" },
-        { number: 8, startTime: "15:50", endTime: "16:35" },
-        { number: 9, startTime: "16:40", endTime: "17:25" },
-        { number: 10, startTime: "18:30", endTime: "19:15" },
-        { number: 11, startTime: "19:20", endTime: "20:05" },
-        { number: 12, startTime: "20:10", endTime: "20:55" },
-        { number: 13, startTime: "21:00", endTime: "21:45" },
+        { number: 1, startTime: "08:00", endTime: "08:40" },
+        { number: 2, startTime: "08:50", endTime: "09:30" },
+        { number: 3, startTime: "09:40", endTime: "10:20" },
+        { number: 4, startTime: "10:30", endTime: "11:10" },
+        { number: 5, startTime: "11:20", endTime: "12:00" },
+        { number: 6, startTime: "14:00", endTime: "14:40" },
+        { number: 7, startTime: "14:50", endTime: "15:30" },
+        { number: 8, startTime: "15:40", endTime: "16:20" },
+        { number: 9, startTime: "16:30", endTime: "17:10" },
+        { number: 10, startTime: "19:00", endTime: "19:40" },
+        { number: 11, startTime: "19:50", endTime: "20:30" },
+        { number: 12, startTime: "20:40", endTime: "21:20" },
     ];
 }
 
