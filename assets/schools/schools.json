@@ -408,6 +408,22 @@
     ],
     "天津": [
       {
+        "name": "中国民航大学正方教务",
+        "type": "zhengfang",
+        "url": "http://jwgl.cauc.edu.cn/xtgl/login_slogin.html",
+        "adapterId": "CAUC_01",
+        "schoolId": "CAUC",
+        "maintainer": "Origin173"
+      },
+      {
+        "name": "中国民航大学正方教务(WebVPN)",
+        "type": "zhengfang",
+        "url": "https://http-jwgl-cauc-edu-cn-80.webvpn.cauc.edu.cn/xtgl/login_slogin.html",
+        "adapterId": "CAUC_02",
+        "schoolId": "CAUC_WEBVPN",
+        "maintainer": "Origin173"
+      },
+      {
         "name": "天津城建大学URP",
         "type": "generic",
         "url": "https://authserver.tcu.edu.cn/authserver/login?service=https%3A%2F%2Fjwxs.tcu.edu.cn%2Flogin",
