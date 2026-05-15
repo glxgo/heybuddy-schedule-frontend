@@ -1,0 +1,46 @@
+# 相伴课表 — 本地开发用最小 Docker Compose 模板
+# 这不是生产部署配置，仅包含 db + api 两个服务用于本地联调。
+# 生产环境请自行补充网关、HTTPS、监控、备份等。
+
+version: "3.8"
+
+services:
+  # PostgreSQL
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+      POSTGRES_DB: heybuddy_dev
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 自定义 API 服务
+  api:
+    build:
+      context: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+      DB_NAME: ${DB_NAME:-heybuddy_dev}
+      JWT_SECRET: ${JWT_SECRET:-change_me_at_least_32_chars}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:

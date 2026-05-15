@@ -1,0 +1,21 @@
+# 相伴课表 — Kong 网关路由骨架（示例）
+# 只展示请求如何按路径前缀分发到不同内部服务，不含密钥或真实地址。
+# 实际部署时请替换 url 为你的内部服务地址。
+
+_format_version: "3.0"
+
+services:
+  - name: api
+    url: http://api:3000
+    routes:
+      - name: api-route
+        paths: ["/api"]
+        strip_path: false
+
+  # 示例：如需接入独立认证服务，可补充类似的路由条目
+  # - name: auth
+  #   url: http://auth:4000
+  #   routes:
+  #     - name: auth-route
+  #       paths: ["/auth"]
+  #       strip_path: true
