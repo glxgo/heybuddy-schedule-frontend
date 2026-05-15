@@ -1,0 +1,17 @@
+{
+  "name": "heybuddy-mock-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "相伴课表 mock 演示后端 — 仅用于本地开发与 UI 联调",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.2.0"
+  }
+}

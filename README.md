@@ -178,6 +178,26 @@ flutter build apk --release --dart-define=API_BASE_URL=https://your-api.example.
 https://example.com/api
 ```
 
+### Mock 后端演示
+
+仓库已附带一个 **仅用于本地演示** 的 mock API，方便在不接入真实后端的情况下联调 Flutter 客户端界面。
+
+```bash
+cd server/mock-api
+npm install
+npm start
+```
+
+> Mock 后端默认监听 `http://localhost:3000`，所有接口返回固定示例数据，不连接数据库、不发送短信、不调用第三方模型。
+
+联调时：
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://localhost:3000/api
+```
+
+更多说明见 [server/mock-api/README.md](server/mock-api/README.md)。
+
 ## 开发说明
 
 ### 适合参与的方向
