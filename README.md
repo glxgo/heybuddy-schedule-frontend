@@ -185,11 +185,11 @@ AI 截图识别功能依赖服务端代理进行模型调用。
 
 ## 致谢
 
-本项目在 **教务系统适配桥接规范、适配器组织方式与相关思路** 上，参考了 [拾光课表](https://github.com/XingHeYuZhuan/shiguangschedule) 开源社区公开提供的方案。
+本项目在 **教务系统适配桥接规范、适配器组织方式与相关思路** 上，参考了 [拾光适配仓库](https://github.com/XingHeYuZhuan/shiguang_warehouse) 开源社区公开提供的方案。
 
 感谢拾光课表项目及其社区贡献者的工作与分享。
 
-拾光课表采用 **MIT License** 发布。依据 MIT 许可证关于 **保留原始版权声明与许可说明** 的要求，本项目在此保留来源致谢说明；如果后续分发内容中包含直接改编或移植自原项目的代码、脚本或其他受 MIT 许可覆盖的内容，也应继续保留相应的版权与许可文本。
+拾光适配仓库采用 **MIT License** 发布。依据 MIT 许可证关于 **保留原始版权声明与许可说明** 的要求，本项目在此保留来源致谢说明；如果后续分发内容中包含直接改编或移植自原项目的代码、脚本或其他受 MIT 许可覆盖的内容，也应继续保留相应的版权与许可文本。
 
 ## 如何参与
 
@@ -202,7 +202,7 @@ AI 截图识别功能依赖服务端代理进行模型调用。
 ## 相关链接
 
 - 前端仓库：[glxgo/heybuddy-schedule-frontend](https://github.com/glxgo/heybuddy-schedule-frontend)
-- 致谢项目：[XingHeYuZhuan/shiguangschedule](https://github.com/XingHeYuZhuan/shiguangschedule)
+- 致谢项目：[XingHeYuZhuan/shiguang_warehouse](https://github.com/XingHeYuZhuan/shiguang_warehouse)
 
 ---
 
