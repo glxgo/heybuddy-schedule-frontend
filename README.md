@@ -1,9 +1,23 @@
 # 相伴课表（HeyBuddy Schedule）
 
 相伴课表是一款面向大学生的社交化课表管理应用。
-它不只是在做“看课表”，而是希望把 **课程安排、好友关系、共同空闲时间、轻量交流** 连接起来，让课表成为校园生活里的一个小入口。
+它不只是在做“看课表”，而是希望把 **课程安排、好友关系、共同空闲时间** 连接起来，能够轻松的看到好友的课表情况。
+本仓库为仅开源前端，包含软件的前端全部源代码及相关资源。项目采用开源模式，欢迎社区开发者参与贡献和适配。
+由于每个高校的教务系统不同，如果您有能力适配教务系统，欢迎您加入我们的适配队伍。
 
-当前公开仓库主要维护 **Flutter 客户端代码**，适合用于前端开发、界面迭代、课表导入适配和产品体验改进。
+非常感谢**拾光适配仓库**提供的解析规则
+
+## 致谢拾光仓库
+本项目在 **教务系统适配桥接规范、适配器组织方式与相关思路** 上，参考了 [拾光适配仓库](https://github.com/XingHeYuZhuan/shiguang_warehouse) 开源社区公开提供的方案。
+
+感谢拾光适配仓库项目及其社区贡献者的工作与分享。
+
+拾光课表采用 **MIT License** 发布。依据 MIT 许可证关于 **保留原始版权声明与许可说明** 的要求，本项目在此保留来源致谢说明；如果后续分发内容中包含直接改编或移植自原项目的代码、脚本或其他受 MIT 许可覆盖的内容，也应继续保留相应的版权与许可文本。
+
+
+
+## 预览图
+![预览图1](/picture/预览.png "预览图")
 
 ## 项目定位
 
@@ -183,13 +197,6 @@ AI 截图识别功能依赖服务端代理进行模型调用。
 - 不把生产 OCR 服务地址写死在仓库里
 - 在部署或二次开发时，明确告知用户截图会发送到你配置的服务端进行处理
 
-## 致谢
-
-本项目在 **教务系统适配桥接规范、适配器组织方式与相关思路** 上，参考了 [拾光课表](https://github.com/XingHeYuZhuan/shiguangschedule) 开源社区公开提供的方案。
-
-感谢拾光课表项目及其社区贡献者的工作与分享。
-
-拾光课表采用 **MIT License** 发布。依据 MIT 许可证关于 **保留原始版权声明与许可说明** 的要求，本项目在此保留来源致谢说明；如果后续分发内容中包含直接改编或移植自原项目的代码、脚本或其他受 MIT 许可覆盖的内容，也应继续保留相应的版权与许可文本。
 
 ## 如何参与
 
@@ -202,8 +209,13 @@ AI 截图识别功能依赖服务端代理进行模型调用。
 ## 相关链接
 
 - 前端仓库：[glxgo/heybuddy-schedule-frontend](https://github.com/glxgo/heybuddy-schedule-frontend)
-- 致谢项目：[XingHeYuZhuan/shiguangschedule](https://github.com/XingHeYuZhuan/shiguangschedule)
 
+## 拾光课程表相关链接
+
+- 主页：[https://github.com/XingHeYuZhuan/shiguangschedule](https://github.com/XingHeYuZhuan/shiguangschedule)
+- 适配脚本仓库：[https://github.com/XingHeYuZhuan/shiguang_warehouse](https://github.com/XingHeYuZhuan/shiguang_warehouse)
+- 查看如何适配,Wiki：[https://github.com/XingHeYuZhuan/shiguangschedule/wiki](https://github.com/XingHeYuZhuan/shiguangschedule/wiki)
+- 浏览器测试插件:[https://github.com/XingHeYuZhuan/shiguang_Tester](https://github.com/XingHeYuZhuan/shiguang_Tester)  
 ---
 
 如果这个项目刚好也让你觉得“课表不该只是冷冰冰的一张表”，那欢迎一起把它打磨得更好。
