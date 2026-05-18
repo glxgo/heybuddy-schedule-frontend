@@ -1,5 +1,10 @@
 # 相伴课表（HeyBuddy Schedule）
 
+[![GitHub Downloads](https://img.shields.io/github/downloads/glxgo/heybuddy-schedule-frontend/total)](https://github.com/glxgo/heybuddy-schedule-frontend/releases)
+[![GitHub License](https://img.shields.io/github/license/glxgo/heybuddy-schedule-frontend)](https://github.com/glxgo/heybuddy-schedule-frontend/blob/main/LICENSE)
+[![GitHub Repo stars](https://img.shields.io/github/stars/glxgo/heybuddy-schedule-frontend)](https://github.com/glxgo/heybuddy-schedule-frontend/stargazers)
+[![GitHub release](https://img.shields.io/github/v/release/glxgo/heybuddy-schedule-frontend)](https://github.com/glxgo/heybuddy-schedule-frontend/releases)
+
 相伴课表是一款面向大学生的社交化课表管理应用。
 它不只是在做“看课表”，而是希望把 **课程安排、好友关系、共同空闲时间、轻量交流** 连接起来，让课表成为校园生活里的一个小入口。
 
