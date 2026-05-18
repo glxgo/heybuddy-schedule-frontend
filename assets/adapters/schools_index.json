@@ -880,5 +880,23 @@
     "jsFile": "jxnu.js",
     "maintainer": "heybuddy",
     "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "CAUC",
+    "adapterId": "CAUC_01",
+    "adapterName": "中国民航大学正方教务",
+    "importUrl": "http://jwgl.cauc.edu.cn/xtgl/login_slogin.html",
+    "jsFile": "cauc_01.js",
+    "maintainer": "Origin173",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "CAUC_WEBVPN",
+    "adapterId": "CAUC_02",
+    "adapterName": "中国民航大学正方教务(WebVPN)",
+    "importUrl": "https://http-jwgl-cauc-edu-cn-80.webvpn.cauc.edu.cn/xtgl/login_slogin.html",
+    "jsFile": "cauc_01.js",
+    "maintainer": "Origin173",
+    "category": "BACHELOR_AND_ASSOCIATE"
   }
 ]
