@@ -1,9 +1,0 @@
-# resources/YXHMC/adapters.yaml
-adapters:
-  - adapter_id: "YXHMC"
-    adapter_name: "成都银杏酒店管理学院教务"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "yxhmc.js"
-    import_url: "http://zfjw.gingkoc.edu.cn/xtgl/login_slogin.html"
-    maintainer: "Xuan-Xuann"
-    description: ""

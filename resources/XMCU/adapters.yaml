@@ -1,9 +1,0 @@
-# resources/XMCU/adapters.yaml
-adapters:
-  - adapter_id: "XMCU_01"
-    adapter_name: "厦门城市职业学院青果教务"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "xmcu_01.js"
-    import_url: "https://eone-443.webvpn.xmcu.edu.cn/"
-    maintainer: "星河欲转"
-    description: ""

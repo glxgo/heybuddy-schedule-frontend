@@ -1,9 +1,0 @@
-# resources/CAPU/adapters.yaml
-adapters:
-  - adapter_id: "CAPU"
-    adapter_name: "成都航空职业技术大学金智新教务"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "capadap.js"
-    import_url: "https://jwxt.cap.edu.cn/jwapp/sys/homeapp/home/index.html?av=&contextPath=/jwapp#/"
-    maintainer: "Xuan-Xuann"
-    description: ""

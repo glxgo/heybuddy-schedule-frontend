@@ -1,9 +1,0 @@
-# resources/TARU/adapters.yaml
-adapters:
-  - adapter_id: "TARU_01"
-    adapter_name: "塔里木大学正方教务"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "taru_01.js"
-    import_url: "https://auth.taru.edu.cn/cas/login?service=https%3A%2F%2Fhall.taru.edu.cn%2FserviceHall"
-    maintainer: "星河欲转"
-    description: ""

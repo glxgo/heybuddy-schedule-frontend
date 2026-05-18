@@ -1,9 +1,0 @@
-# resources/WHCB/adapters.yaml
-adapters:
-  - adapter_id: "WHCB_1" # id加上序号"
-    adapter_name: "武汉船舶职业技术学院"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "WHCB.js" #相对路径"
-    import_url: "http://jw.wspc.edu.cn/jwapp/sys/wdkb/*default/index.do?EMAP_LANG=zh#/xskcb"
-    maintainer: "一丝不旺"
-    description: ""

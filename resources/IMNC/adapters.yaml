@@ -1,9 +1,0 @@
-# resources/IMNC/adapters.yaml
-adapters:
-  - adapter_id: "IMNC_01"
-    adapter_name: "呼和浩特民族学院教务系统"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "imnc_01.js"
-    import_url: "https://webvpn.imnc.edu.cn"
-    maintainer: "浮笙-WindDrift"
-    description: ""

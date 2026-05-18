@@ -1,9 +1,0 @@
-# resources/JNU/adapters.yaml
-adapters:
-  - adapter_id: "JNU_01"
-    adapter_name: "暨南大学金智教务系统"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "jnu_01.js"
-    import_url: "https://jw.jnu.edu.cn"
-    maintainer: "White-Dew-Boy"
-    description: ""

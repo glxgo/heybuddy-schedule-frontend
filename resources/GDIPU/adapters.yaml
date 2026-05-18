@@ -1,9 +1,0 @@
-# resources/GDIPU/adapters.yaml
-adapters:
-  - adapter_id: "GDIPU_01"
-    adapter_name: "广东轻工职业技术大学教务"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "gdipu.js"
-    import_url: "https://jw.gdipu.edu.cn"
-    maintainer: "LittleArray"
-    description: ""

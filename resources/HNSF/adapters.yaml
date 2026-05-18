@@ -1,9 +1,0 @@
-# resources/HNSF/adapters.yaml
-adapters:
-  - adapter_id: "HNSF_02"
-    adapter_name: "河南师范大学适配教务"
-    category: "BACHELOR_AND_ASSOCIATE"
-    asset_js_path: "hnsf_02.js"
-    import_url: "https://jwc.htu.edu.cn/"
-    maintainer: "一颗"
-    description: ""
