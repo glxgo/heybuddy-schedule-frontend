@@ -1,0 +1,9 @@
+# resources/TONGJI/adapters.yaml
+adapters:
+  - adapter_id: "TONGJI_01"
+    adapter_name: "同济大学 1 系统"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "tongji_01.js"
+    import_url: "https://1.tongji.edu.cn/"
+    maintainer: "Linho1219"
+    description: ""

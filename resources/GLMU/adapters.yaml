@@ -1,0 +1,9 @@
+# resources/GLMU/adapters.yaml
+adapters:
+  - adapter_id: "GLMU_01"
+    adapter_name: "桂林医科大学教务"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "glmu.js"
+    import_url: "https://ejwc.glmu.edu.cn/"
+    maintainer: "xhh李"
+    description: ""

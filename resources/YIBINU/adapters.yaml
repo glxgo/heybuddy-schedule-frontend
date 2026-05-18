@@ -1,0 +1,9 @@
+# resources/YIBINU/adapters.yaml
+adapters:
+  - adapter_id: "YIBINU_01"
+    adapter_name: "宜宾学院教务系统适配"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "yibinu_01.js"
+    import_url: "https://authserver.yibinu.edu.cn/authserver/login?service=https://ehall.yibinu.edu.cn:443/login?service=https://ehall.yibinu.edu.cn/new/index.html"
+    maintainer: "空灵"
+    description: ""

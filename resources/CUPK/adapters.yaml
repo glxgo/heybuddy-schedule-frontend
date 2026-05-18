@@ -1,0 +1,9 @@
+# resources/CUPK/adapters.yaml
+adapters:
+  - adapter_id: "CUPK_01"
+    adapter_name: "中国石油大学(北京)克拉玛依校区本科教务系统"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "cupk_01.js"
+    import_url: "https://eams.cupk.edu.cn/student/"
+    maintainer: "ARK-VALLEY"
+    description: ""

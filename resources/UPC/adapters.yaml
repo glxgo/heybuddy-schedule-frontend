@@ -1,0 +1,9 @@
+# resources/UPC/adapters.yaml
+adapters:
+  - adapter_id: "UPC"
+    adapter_name: "中国石油大学(华东)教务适配"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "upc.js"
+    import_url: "https://webvpn.upc.edu.cn/users/sign_in"
+    maintainer: "星河欲转"
+    description: ""

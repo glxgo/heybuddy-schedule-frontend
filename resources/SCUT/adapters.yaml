@@ -1,0 +1,9 @@
+# resources/SCUT/adapters.yaml
+adapters:
+  - adapter_id: "SCUT_02"
+    adapter_name: "华南理工大学内网适配教务"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "SCUT_01.js"
+    import_url: "http://xsjw2018.jw.scut.edu.cn/"
+    maintainer: "dezige131"
+    description: ""

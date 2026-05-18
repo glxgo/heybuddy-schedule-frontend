@@ -1,0 +1,9 @@
+# resources/NCUT/adapters.yaml
+adapters:
+  - adapter_id: "NCUT_01"
+    adapter_name: "北方工业大学-教务系统"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "ncut_01.js"
+    import_url: "https://jwxtbk.ncut.edu.cn/jsxsd/"
+    maintainer: "EnderHCO3"
+    description: ""

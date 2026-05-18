@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:yaml/yaml.dart';
 
 class AdapterInfo {
   final String schoolId;
@@ -10,6 +9,7 @@ class AdapterInfo {
   final String jsFile;
   final String maintainer;
   final String category;
+  final String resourceFolder;
 
   const AdapterInfo({
     required this.schoolId,
@@ -19,16 +19,18 @@ class AdapterInfo {
     required this.jsFile,
     required this.maintainer,
     required this.category,
+    required this.resourceFolder,
   });
 
-  factory AdapterInfo.fromJson(Map<String, dynamic> json) => AdapterInfo(
-    schoolId: json['schoolId'] as String? ?? '',
-    adapterId: json['adapterId'] as String? ?? '',
-    adapterName: json['adapterName'] as String? ?? '',
-    importUrl: json['importUrl'] as String? ?? '',
-    jsFile: json['jsFile'] as String? ?? '',
-    maintainer: json['maintainer'] as String? ?? '',
-    category: json['category'] as String? ?? '',
+  factory AdapterInfo.fromYaml(Map<dynamic, dynamic> map) => AdapterInfo(
+    schoolId: map['school_id'] as String? ?? '',
+    adapterId: map['adapter_id'] as String? ?? '',
+    adapterName: map['adapter_name'] as String? ?? '',
+    importUrl: map['import_url'] as String? ?? '',
+    jsFile: map['js_file'] as String? ?? '',
+    maintainer: map['maintainer'] as String? ?? '',
+    category: map['category'] as String? ?? '',
+    resourceFolder: map['resource_folder'] as String? ?? '',
   );
 }
 
@@ -42,12 +44,13 @@ class AdapterService {
 
   Future<List<AdapterInfo>> loadIndex() async {
     if (_index != null) return _index!;
-    final jsonStr = await rootBundle.loadString(
-      'assets/adapters/schools_index.json',
+    final yamlStr = await rootBundle.loadString(
+      'index/schools_index.yaml',
     );
-    final list = json.decode(jsonStr) as List<dynamic>;
+    final doc = loadYaml(yamlStr) as Map<dynamic, dynamic>;
+    final list = doc['schools'] as List<dynamic>;
     _index = list
-        .map((e) => AdapterInfo.fromJson(e as Map<String, dynamic>))
+        .map((e) => AdapterInfo.fromYaml(e as Map<dynamic, dynamic>))
         .toList();
     return _index!;
   }
@@ -61,12 +64,13 @@ class AdapterService {
     }
   }
 
-  Future<String?> loadAdapterJs(String jsFile) async {
-    final cached = _jsCache[jsFile];
+  Future<String?> loadAdapterJs(AdapterInfo adapter) async {
+    final key = '${adapter.resourceFolder}/${adapter.jsFile}';
+    final cached = _jsCache[key];
     if (cached != null) return cached;
     try {
-      final js = await rootBundle.loadString('assets/adapters/$jsFile');
-      _jsCache[jsFile] = js;
+      final js = await rootBundle.loadString('resources/$key');
+      _jsCache[key] = js;
       return js;
     } catch (_) {
       return null;

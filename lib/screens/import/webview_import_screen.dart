@@ -14,6 +14,7 @@ import '../../providers/schedule_provider.dart';
 import '../../services/adapter_service.dart';
 import '../../widgets/import_target_sheet.dart';
 import '../../widgets/liquid_scaffold.dart';
+import 'import_start_date_helper.dart';
 
 class WebViewImportScreen extends ConsumerStatefulWidget {
   final String schoolName;
@@ -44,6 +45,9 @@ class _WebViewImportScreenState extends ConsumerState<WebViewImportScreen> {
   final List<String> _debugLogs = [];
   AdapterInfo? _adapter;
   String? _adapterJs;
+  List<Map<String, dynamic>> _pendingAdapterCourses = const [];
+  Map<String, dynamic>? _pendingCourseConfig;
+  List<Map<String, dynamic>> _pendingPresetTimeSlots = const [];
 
   static const _bridgeShim = r'''
 window._androidPromiseResolvers = {};
@@ -63,27 +67,57 @@ window._rejectAndroidPromise = function(promiseId, error) {
   }
 };
 window.AndroidBridge = {
-  showToast: function(msg) { FlutterBridge.postMessage(JSON.stringify({type:'debug',msg:'[Toast] '+msg})); },
+  showToast: function(msg) {
+    FlutterBridge.postMessage(JSON.stringify({type:'debug',msg:'[Toast] '+msg}));
+  },
   showAlert: function(title, content, confirmText, promiseId) {
-    FlutterBridge.postMessage(JSON.stringify({type:'debug',msg:'[Alert] '+title+': '+(content||'').substring(0,200)}));
-    window._resolveAndroidPromise(promiseId, 'true');
+    FlutterBridge.postMessage(JSON.stringify({
+      type:'showAlert',
+      title:title || '',
+      content:content || '',
+      confirmText:confirmText || '确定',
+      promiseId:promiseId
+    }));
   },
   showPrompt: function(title, tip, defaultText, validator, promiseId) {
-    FlutterBridge.postMessage(JSON.stringify({type:'debug',msg:'[Prompt] '+title+' → 默认值:'+defaultText}));
-    window._resolveAndroidPromise(promiseId, defaultText);
+    FlutterBridge.postMessage(JSON.stringify({
+      type:'showPrompt',
+      title:title || '',
+      tip:tip || '',
+      defaultText:defaultText || '',
+      validator:validator || '',
+      promiseId:promiseId
+    }));
   },
   showSingleSelection: function(title, itemsJson, defaultIndex, promiseId) {
-    window._resolveAndroidPromise(promiseId, defaultIndex.toString());
+    FlutterBridge.postMessage(JSON.stringify({
+      type:'showSingleSelection',
+      title:title || '',
+      itemsJson:itemsJson || '[]',
+      defaultIndex:defaultIndex,
+      promiseId:promiseId
+    }));
   },
   saveImportedCourses: function(coursesJson, promiseId) {
-    FlutterBridge.postMessage(coursesJson);
-    window._resolveAndroidPromise(promiseId, 'true');
+    FlutterBridge.postMessage(JSON.stringify({
+      type:'saveImportedCourses',
+      coursesJson:coursesJson || '[]',
+      promiseId:promiseId
+    }));
   },
   saveCourseConfig: function(configJson, promiseId) {
-    window._resolveAndroidPromise(promiseId, 'true');
+    FlutterBridge.postMessage(JSON.stringify({
+      type:'saveCourseConfig',
+      configJson:configJson || '{}',
+      promiseId:promiseId
+    }));
   },
   savePresetTimeSlots: function(timeSlotsJson, promiseId) {
-    window._resolveAndroidPromise(promiseId, 'true');
+    FlutterBridge.postMessage(JSON.stringify({
+      type:'savePresetTimeSlots',
+      timeSlotsJson:timeSlotsJson || '[]',
+      promiseId:promiseId
+    }));
   },
   notifyTaskCompletion: function() {
     FlutterBridge.postMessage(JSON.stringify({type:'taskComplete'}));
@@ -152,21 +186,7 @@ window.AndroidBridgePromise = {
       ..addJavaScriptChannel(
         'FlutterBridge',
         onMessageReceived: (msg) {
-          try {
-            final decoded = jsonDecode(msg.message);
-            if (decoded is Map && decoded['type'] == 'debug') {
-              _appendDebugLog(decoded['msg'] as String);
-            } else if (decoded is Map &&
-                decoded['type'] == 'taskComplete' &&
-                _adapterCompleter != null &&
-                !_adapterCompleter!.isCompleted) {
-              _adapterCompleter!.complete(const <Map<String, dynamic>>[]);
-            } else if (decoded is List &&
-                _adapterCompleter != null &&
-                !_adapterCompleter!.isCompleted) {
-              _adapterCompleter!.complete(decoded.cast<Map<String, dynamic>>());
-            }
-          } catch (_) {}
+          unawaited(_handleBridgeMessage(msg.message));
         },
       )
       ..setNavigationDelegate(
@@ -186,7 +206,7 @@ window.AndroidBridgePromise = {
     final lookupId = widget.schoolId.isNotEmpty ? widget.schoolId : widget.systemType;
     _adapter = await _adapterService.findAdapter(lookupId);
     if (_adapter != null) {
-      _adapterJs = await _adapterService.loadAdapterJs(_adapter!.jsFile);
+      _adapterJs = await _adapterService.loadAdapterJs(_adapter!);
     }
   }
 
@@ -206,10 +226,319 @@ window.AndroidBridgePromise = {
     setState(() => _hasScheduleHtml = hasSchedule);
   }
 
+  Future<void> _handleBridgeMessage(String message) async {
+    try {
+      final decoded = jsonDecode(message);
+      if (decoded is List) {
+        _pendingAdapterCourses = decoded
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
+        return;
+      }
+      if (decoded is! Map) return;
+      final payload = Map<String, dynamic>.from(decoded);
+      switch (payload['type']) {
+        case 'debug':
+          _appendDebugLog(payload['msg']?.toString() ?? '');
+          return;
+        case 'showAlert':
+          await _handleBridgeAlert(payload);
+          return;
+        case 'showPrompt':
+          await _handleBridgePrompt(payload);
+          return;
+        case 'showSingleSelection':
+          await _handleBridgeSingleSelection(payload);
+          return;
+        case 'saveImportedCourses':
+          await _handleBridgeSaveCourses(payload);
+          return;
+        case 'saveCourseConfig':
+          await _handleBridgeSaveCourseConfig(payload);
+          return;
+        case 'savePresetTimeSlots':
+          await _handleBridgeSaveTimeSlots(payload);
+          return;
+        case 'taskComplete':
+          if (_adapterCompleter != null && !_adapterCompleter!.isCompleted) {
+            _adapterCompleter!.complete(_pendingAdapterCourses);
+          }
+          return;
+      }
+    } catch (e) {
+      _appendDebugLog('[Bridge] 消息解析失败: $e');
+    }
+  }
+
+  Future<void> _resolveBridgePromise(String promiseId, dynamic result) async {
+    await _controller.runJavaScript(
+      'window._resolveAndroidPromise(${jsonEncode(promiseId)}, ${jsonEncode(result)});',
+    );
+  }
+
+  Future<void> _rejectBridgePromise(String promiseId, String error) async {
+    await _controller.runJavaScript(
+      'window._rejectAndroidPromise(${jsonEncode(promiseId)}, ${jsonEncode(error)});',
+    );
+  }
+
+  Future<void> _handleBridgeAlert(Map<String, dynamic> payload) async {
+    final promiseId = payload['promiseId']?.toString() ?? '';
+    if (promiseId.isEmpty || !mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: Text(payload['title']?.toString() ?? '提示'),
+        content: Text(payload['content']?.toString() ?? ''),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(payload['confirmText']?.toString() ?? '确定'),
+          ),
+        ],
+      ),
+    );
+    await _resolveBridgePromise(promiseId, true);
+  }
+
+  Future<void> _handleBridgePrompt(Map<String, dynamic> payload) async {
+    final promiseId = payload['promiseId']?.toString() ?? '';
+    if (promiseId.isEmpty || !mounted) return;
+
+    final title = payload['title']?.toString() ?? '请输入';
+    final tip = payload['tip']?.toString() ?? '';
+    final defaultText = payload['defaultText']?.toString() ?? '';
+    final validator = payload['validator']?.toString() ?? '';
+    final controller = TextEditingController(text: defaultText);
+    String? errorText;
+
+    final value = await showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => AlertDialog(
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (tip.isNotEmpty) ...[
+                Text(
+                  tip,
+                  style: const TextStyle(color: AppColorTokens.textSecondary),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(errorText: errorText),
+                onSubmitted: (_) {
+                  final validationMessage = _validatePromptValue(
+                    title,
+                    validator,
+                    controller.text,
+                  );
+                  if (validationMessage != null) {
+                    setSheetState(() => errorText = validationMessage);
+                    return;
+                  }
+                  Navigator.pop(ctx, controller.text.trim());
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('取消'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final validationMessage = _validatePromptValue(
+                  title,
+                  validator,
+                  controller.text,
+                );
+                if (validationMessage != null) {
+                  setSheetState(() => errorText = validationMessage);
+                  return;
+                }
+                Navigator.pop(ctx, controller.text.trim());
+              },
+              child: const Text('确定'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (value == null) {
+      await _resolveBridgePromise(promiseId, null);
+      return;
+    }
+    await _resolveBridgePromise(promiseId, value);
+  }
+
+  String? _validatePromptValue(String title, String validator, String rawValue) {
+    final value = rawValue.trim();
+    if (validator == 'validateYearInput' || title.contains('学年')) {
+      if (!RegExp(r'^\d{4}$').hasMatch(value)) {
+        return '请输入四位数字的学年';
+      }
+      return null;
+    }
+    if (value.isEmpty) {
+      return '请输入内容';
+    }
+    return null;
+  }
+
+  Future<void> _handleBridgeSingleSelection(Map<String, dynamic> payload) async {
+    final promiseId = payload['promiseId']?.toString() ?? '';
+    if (promiseId.isEmpty || !mounted) return;
+
+    final title = payload['title']?.toString() ?? '请选择';
+    final items = _parseSelectionItems(payload['itemsJson']);
+    final selectedIndex = await showDialog<int>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(title),
+        children: [
+          for (var i = 0; i < items.length; i++)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, i),
+              child: Text(items[i]),
+            ),
+        ],
+      ),
+    );
+
+    await _resolveBridgePromise(promiseId, selectedIndex ?? -1);
+  }
+
+  List<String> _parseSelectionItems(dynamic value) {
+    if (value is List) {
+      return value.map((item) => item.toString()).toList();
+    }
+    if (value is String && value.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is List) {
+          return decoded.map((item) => item.toString()).toList();
+        }
+      } catch (_) {}
+    }
+    return const [];
+  }
+
+  Future<void> _handleBridgeSaveCourses(Map<String, dynamic> payload) async {
+    final promiseId = payload['promiseId']?.toString() ?? '';
+    final parsed = _decodeMapList(payload['coursesJson']);
+    if (promiseId.isEmpty) return;
+    if (parsed == null) {
+      await _rejectBridgePromise(promiseId, '课程数据格式不正确');
+      return;
+    }
+    _pendingAdapterCourses = parsed;
+    _appendDebugLog('[Bridge] 收到 ${parsed.length} 门课程');
+    await _resolveBridgePromise(promiseId, true);
+  }
+
+  Future<void> _handleBridgeSaveCourseConfig(Map<String, dynamic> payload) async {
+    final promiseId = payload['promiseId']?.toString() ?? '';
+    final parsed = _decodeMap(payload['configJson']);
+    if (promiseId.isEmpty) return;
+    if (parsed == null) {
+      await _rejectBridgePromise(promiseId, '课表配置格式不正确');
+      return;
+    }
+    _pendingCourseConfig = {...?_pendingCourseConfig, ...parsed};
+    await _resolveBridgePromise(promiseId, true);
+  }
+
+  Future<void> _handleBridgeSaveTimeSlots(Map<String, dynamic> payload) async {
+    final promiseId = payload['promiseId']?.toString() ?? '';
+    final parsed = _decodeMapList(payload['timeSlotsJson']);
+    if (promiseId.isEmpty) return;
+    if (parsed == null) {
+      await _rejectBridgePromise(promiseId, '作息时间格式不正确');
+      return;
+    }
+    _pendingPresetTimeSlots = parsed;
+    _appendDebugLog('[Bridge] 收到 ${parsed.length} 条作息时间');
+    await _resolveBridgePromise(promiseId, true);
+  }
+
+  Map<String, dynamic>? _decodeMap(dynamic value) {
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+    if (value is String && value.trim().isNotEmpty) {
+      final decoded = jsonDecode(value);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    }
+    return null;
+  }
+
+  List<Map<String, dynamic>>? _decodeMapList(dynamic value) {
+    if (value is List) {
+      return value
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+    if (value is String && value.trim().isNotEmpty) {
+      final decoded = jsonDecode(value);
+      if (decoded is List) {
+        return decoded
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
+      }
+    }
+    return null;
+  }
+
+  String? _pendingStartDate() {
+    final raw = (_pendingCourseConfig?['semesterStartDate'] ??
+            _pendingCourseConfig?['startDate'] ??
+            _pendingCourseConfig?['semester_start_date'])
+        ?.toString()
+        .trim();
+    if (raw == null || raw.isEmpty) return null;
+    final normalized = raw.replaceAll('/', '-').replaceAll('.', '-');
+    final parsed = DateTime.tryParse(normalized);
+    if (parsed == null) return normalized;
+    return _formatDate(parsed);
+  }
+
+  int? _pendingTotalWeeks() {
+    final raw = _pendingCourseConfig?['semesterTotalWeeks'] ??
+        _pendingCourseConfig?['totalWeeks'] ??
+        _pendingCourseConfig?['semester_total_weeks'];
+    if (raw is num) return raw.toInt();
+    return int.tryParse(raw?.toString() ?? '');
+  }
+
+  String _formatDate(DateTime value) {
+    final year = value.year.toString().padLeft(4, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
   Future<void> _captureAndParse() async {
     if (_importing) return;
     setState(() => _importing = true);
     _debugLogs.clear();
+    _pendingAdapterCourses = const [];
+    _pendingCourseConfig = null;
+    _pendingPresetTimeSlots = const [];
     var parseSource = '';
 
     try {
@@ -278,22 +607,39 @@ window.AndroidBridgePromise = {
       }
       if (!mounted) return;
 
-      final msg = await ref.read(scheduleProvider.notifier).importCourses(
+      final importedTimeSlots = TimeSlot.parseList(
+        _pendingPresetTimeSlots,
+        fallback: const [],
+      );
+      final importResult = await ref.read(scheduleProvider.notifier).importCourses(
             courses,
             mode: choice.mode,
             newTableName: choice.newTableName,
+            startDate: _pendingStartDate(),
+            totalWeeks: _pendingTotalWeeks(),
+            timeSlots: importedTimeSlots.isEmpty ? null : importedTimeSlots,
           );
       if (!mounted) return;
       setState(() => _importing = false);
+
+      final notes = <String>[
+        if (parseSource.isNotEmpty) parseSource,
+        if (_pendingPresetTimeSlots.isNotEmpty) '已自动应用学校作息时间。',
+      ];
+      final snackMessage = [importResult.message, ...notes].join('\n');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$msg\n$parseSource'),
-          backgroundColor: msg.contains('失败')
+          content: Text(snackMessage),
+          backgroundColor: importResult.message.contains('失败')
               ? AppColorTokens.warning
               : AppColorTokens.success,
           duration: const Duration(seconds: 5),
         ),
       );
+      if (!importResult.isSuccess) return;
+
+      await promptForMissingStartDateIfNeeded(context, ref, importResult);
+      if (!mounted) return;
       context.go('/schedule');
     } catch (e) {
       if (!mounted) return;
@@ -308,55 +654,11 @@ window.AndroidBridgePromise = {
   }
 
   Course _adapterCourseToCourse(Map<String, dynamic> json) {
-    final weeks = _parseWeeks(json['weeks'] ?? json['weekList']);
-    final name = (json['name'] ?? '').toString();
-    return Course(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      name: name,
-      teacher: (json['teacher'] ?? '').toString(),
-      position: (json['position'] ?? json['location'] ?? '').toString(),
-      day: ((json['day'] ?? json['dayOfWeek'] ?? 1) as num).toInt().clamp(1, 7),
-      startSection: ((json['startSection'] ?? json['startPeriod'] ?? 1) as num).toInt().clamp(1, 12),
-      endSection: ((json['endSection'] ?? json['endPeriod'] ?? 2) as num).toInt().clamp(1, 12),
-      weekList: weeks,
-      color: AppConstants.stableCourseColor(name),
+    final parsed = Course.fromJson(json);
+    return parsed.copyWith(
+      id: '${DateTime.now().microsecondsSinceEpoch}_${parsed.day}_${parsed.startSection}',
+      color: AppConstants.stableCourseColor(parsed.name),
     );
-  }
-
-  List<int> _parseWeeks(dynamic value) {
-    if (value is List) {
-      final parsed = value
-          .map((e) => int.tryParse(e.toString()) ?? 0)
-          .where((e) => e > 0)
-          .toList();
-      if (parsed.isNotEmpty) return parsed;
-    }
-    if (value is String && value.trim().isNotEmpty) {
-      final weeks = <int>[];
-      for (final part in value.split(',')) {
-        final item = part.trim().replaceAll('周', '');
-        if (item.contains('-')) {
-          final range = item.split('-');
-          if (range.length == 2) {
-            final start = int.tryParse(range[0].trim()) ?? 0;
-            final end = int.tryParse(range[1].trim()) ?? 0;
-            if (start > 0 && end >= start) {
-              for (var i = start; i <= end; i++) {
-                weeks.add(i);
-              }
-            }
-          }
-        } else {
-          final single = int.tryParse(item);
-          if (single != null && single > 0) weeks.add(single);
-        }
-      }
-      if (weeks.isNotEmpty) {
-        final deduped = weeks.toSet().toList()..sort();
-        return deduped;
-      }
-    }
-    return List.generate(20, (i) => i + 1);
   }
 
   @override

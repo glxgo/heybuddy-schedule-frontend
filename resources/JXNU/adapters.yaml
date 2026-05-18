@@ -1,0 +1,9 @@
+# resources/JXNU/adapters.yaml
+adapters:
+  - adapter_id: "JXNU_01"
+    adapter_name: "江西师范大学正方教务"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "jxnu.js"
+    import_url: "https://jwc.jxnu.edu.cn/"
+    maintainer: "heybuddy"
+    description: ""

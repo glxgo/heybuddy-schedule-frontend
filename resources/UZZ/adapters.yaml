@@ -1,0 +1,9 @@
+# resources/UZZ/adapters.yaml
+adapters:
+  - adapter_id: "UZZ_01"
+    adapter_name: "枣庄学院正方教务"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "uzz_01.js"
+    import_url: "https://iam.uzz.edu.cn/esc-sso/login/page"
+    maintainer: "素绫理"
+    description: ""

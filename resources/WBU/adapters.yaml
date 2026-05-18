@@ -1,0 +1,9 @@
+# resources/WBU/adapters.yaml
+adapters:
+  - adapter_id: "WBU_01"
+    adapter_name: "武汉商学院-超星教务系统"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "wbu_01.js"
+    import_url: "https://webvpn.wbu.edu.cn/"   # 这里放真实登录页"
+    maintainer: "Foraes"
+    description: ""

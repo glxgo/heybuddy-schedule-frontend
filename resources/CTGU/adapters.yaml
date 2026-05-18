@@ -1,0 +1,9 @@
+# resources/CTGU/adapters.yaml
+adapters:
+  - adapter_id: "CTGU"
+    adapter_name: "三峡大学教务"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "ctgu.js"
+    import_url: "http://jwxt.ctgu.edu.cn/jwapp/sys/yjsrzfwapp/dbLogin/main.do"
+    maintainer: "星河欲转"
+    description: ""

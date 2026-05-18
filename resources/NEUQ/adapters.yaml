@@ -1,0 +1,9 @@
+# resources/NEUQ/adapters.yaml
+adapters:
+  - adapter_id: "NEUQ"
+    adapter_name: "东北大学秦皇岛分校树维教务"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "neuq.js"
+    import_url: "https://jwxt.neuq.edu.cn"
+    maintainer: "aryunm"
+    description: ""
