@@ -9,12 +9,39 @@
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
+    "schoolId": "AHZYYGZ",
+    "adapterId": "AHZYYGZ_01",
+    "adapterName": "安徽中医药高等专科学校青果教务",
+    "importUrl": "https://jwxt.ahzyygz.edu.cn/ahzyygzjw/frame/homes.action",
+    "jsFile": "ahzyygz_01.js",
+    "maintainer": "glxgo",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
     "schoolId": "BUPT",
     "adapterId": "BUPT_01",
     "adapterName": "北京邮电大学本科教务",
     "importUrl": "https://jwgl.bupt.edu.cn/jsxsd/",
     "jsFile": "bupt_01.js",
     "maintainer": "cstkn",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "CAUC",
+    "adapterId": "CAUC_01",
+    "adapterName": "中国民航大学正方教务",
+    "importUrl": "http://jwgl.cauc.edu.cn/xtgl/login_slogin.html",
+    "jsFile": "cauc_01.js",
+    "maintainer": "Origin173",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "CAUC_WEBVPN",
+    "adapterId": "CAUC_02",
+    "adapterName": "中国民航大学正方教务(WebVPN)",
+    "importUrl": "https://http-jwgl-cauc-edu-cn-80.webvpn.cauc.edu.cn/xtgl/login_slogin.html",
+    "jsFile": "cauc_01.js",
+    "maintainer": "Origin173",
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
@@ -69,6 +96,15 @@
     "importUrl": "https://https-auth-cqrk-edu-cn-443.webvpn.cqrk.edu.cn:8480/cas/login?service=http%3A%2F%2Fportal.cqrk.edu.cn&rewrite=1",
     "jsFile": "cqrk_01.js",
     "maintainer": "星河欲转",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "CFEC",
+    "adapterId": "CFEC_01",
+    "adapterName": "重庆财经学院正方教务",
+    "importUrl": "http://jwmis.cfec.edu.cn/jwglxt/kbcx/xskbcx_cxXskbcxIndex.html?gnmkdm=N2151&layout=default",
+    "jsFile": "cfec_01.js",
+    "maintainer": "glxgo",
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
@@ -168,6 +204,15 @@
     "importUrl": "https://webvpn.dlu.edu.cn/login",
     "jsFile": "dlu.js",
     "maintainer": "platinumyrh",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "ECJTU",
+    "adapterId": "ECJTU_01",
+    "adapterName": "华东交通大学教务系统",
+    "importUrl": "https://jwxt.ecjtu.edu.cn/index.action",
+    "jsFile": "ecjtu_01.js",
+    "maintainer": "glxgo",
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
@@ -513,6 +558,15 @@
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
+    "schoolId": "NJTECH",
+    "adapterId": "NJTECH",
+    "adapterName": "南京工业大学正方教务",
+    "importUrl": "https://jwgl.njtech.edu.cn/xtgl/login_slogin.html",
+    "jsFile": "njtech.js",
+    "maintainer": "星河欲转",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
     "schoolId": "NEAU",
     "adapterId": "NEAU_01",
     "adapterName": "东北农业大学适配教务",
@@ -639,6 +693,15 @@
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
+    "schoolId": "STCNCHU",
+    "adapterId": "STCNCHU",
+    "adapterName": "南昌航空大学科技学院强智教务",
+    "importUrl": "http://qzjwxt.stcnchu.edu.cn:800/jsxsd/",
+    "jsFile": "stcnchu.js",
+    "maintainer": "星河欲转",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
     "schoolId": "SXGCXY",
     "adapterId": "SXGCXY_01",
     "adapterName": "山西工程职业学院超星教务适配",
@@ -738,6 +801,15 @@
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
+    "schoolId": "WENHUA",
+    "adapterId": "WENHUA_01",
+    "adapterName": "文华学院正方教务",
+    "importUrl": "https://jw1.hustwenhua.net/jwglxt/xtgl/login_slogin.html",
+    "jsFile": "wenhua_01.js",
+    "maintainer": "glxgo",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
     "schoolId": "WHCB",
     "adapterId": "WHCB_1\" # id加上序号",
     "adapterName": "武汉船舶职业技术学院",
@@ -753,6 +825,15 @@
     "importUrl": "http://jwgl.xaut.edu.cn/",
     "jsFile": "XAUT_01.js",
     "maintainer": "dezige131",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "XATU",
+    "adapterId": "XATU_01",
+    "adapterName": "西安工业大学",
+    "importUrl": "http://jwgl2018.xatu.edu.cn",
+    "jsFile": "myschool_xatu.js",
+    "maintainer": "晨熯",
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
@@ -780,6 +861,15 @@
     "importUrl": "https://eone-443.webvpn.xmcu.edu.cn/",
     "jsFile": "xmcu_01.js",
     "maintainer": "星河欲转",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "XYAFU",
+    "adapterId": "XYAFU_01",
+    "adapterName": "信阳农林学院青果教务",
+    "importUrl": "https://sso.xyafu.edu.cn/sso/login?service=https%3A%2F%2Fjwgl.xyafu.edu.cn%2Fcaslogin",
+    "jsFile": "xyafu_01.js",
+    "maintainer": "glxgo",
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
@@ -834,6 +924,15 @@
     "importUrl": "https://edu-admin.zhku.edu.cn/",
     "jsFile": "zhku_lc6464.js",
     "maintainer": "lc6464",
+    "category": "BACHELOR_AND_ASSOCIATE"
+  },
+  {
+    "schoolId": "ZJUT",
+    "adapterId": "ZJUT_01",
+    "adapterName": "浙江工业大学正方教务",
+    "importUrl": "http://www.gdjw.zjut.edu.cn/jwglxt/xtgl/login_slogin.html?kickout=1",
+    "jsFile": "zjut_01.js",
+    "maintainer": "glxgo",
     "category": "BACHELOR_AND_ASSOCIATE"
   },
   {
