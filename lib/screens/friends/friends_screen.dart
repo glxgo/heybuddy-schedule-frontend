@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/friends_provider.dart';
+import '../../services/social_realtime_service.dart';
 import '../../widgets/bottom_sheet_helper.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/liquid_scaffold.dart';
@@ -15,12 +19,62 @@ class FriendsScreen extends ConsumerStatefulWidget {
   ConsumerState<FriendsScreen> createState() => _FriendsScreenState();
 }
 
-class _FriendsScreenState extends ConsumerState<FriendsScreen> {
-  final _phoneCtrl = TextEditingController();
+class _FriendsScreenState extends ConsumerState<FriendsScreen>
+    with WidgetsBindingObserver {
+  final _accountCtrl = TextEditingController();
+  SocialRealtimeService? _realtime;
+  Timer? _reconnectTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    Future.microtask(_connectRealtime);
+  }
+
+  Future<void> _connectRealtime() async {
+    if (!mounted || _realtime != null) return;
+    final token = ref.read(authProvider).token;
+    if (token == null || token.isEmpty) return;
+    final service = SocialRealtimeService(token: token);
+    _realtime = service;
+    await service.start(
+      onEvent: (event, data) {
+        if (!mounted) return;
+        if (event == 'connected' || event == 'ping') return;
+        ref.read(friendsProvider.notifier).loadFriends();
+      },
+      onDisconnected: () {
+        if (_realtime == service) {
+          _realtime = null;
+        }
+        _scheduleReconnect();
+      },
+    );
+  }
+
+  void _scheduleReconnect() {
+    if (!mounted || _reconnectTimer != null) return;
+    _reconnectTimer = Timer(const Duration(seconds: 5), () {
+      _reconnectTimer = null;
+      _connectRealtime();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(friendsProvider.notifier).loadFriends();
+      _connectRealtime();
+    }
+  }
 
   @override
   void dispose() {
-    _phoneCtrl.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _reconnectTimer?.cancel();
+    _realtime?.stop();
+    _accountCtrl.dispose();
     super.dispose();
   }
 
@@ -61,7 +115,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                '输入对方手机号，发送好友请求',
+                '输入对方账号，发送好友请求',
                 style: TextStyle(
                   fontSize: 13,
                   color: AppColorTokens.textSecondary,
@@ -69,12 +123,12 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               ),
               const SizedBox(height: 18),
               TextField(
-                controller: _phoneCtrl,
+                controller: _accountCtrl,
                 keyboardType: TextInputType.phone,
                 maxLength: 11,
                 decoration: const InputDecoration(
-                  labelText: '好友手机号',
-                  hintText: '请输入对方的手机号',
+                  labelText: '好友账号',
+                  hintText: '请输入对方的账号',
                   prefixIcon: Icon(Icons.phone_iphone_outlined),
                   counterText: '',
                 ),
@@ -82,17 +136,10 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               const SizedBox(height: 18),
               SpringButton(
                 onTap: () async {
-                  final phone = _phoneCtrl.text.trim();
-                  if (phone.length != 11) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('请输入正确的手机号')));
-                    return;
-                  }
+                  final account = _accountCtrl.text.trim();
+                  if (account.isEmpty) return;
                   Navigator.pop(ctx);
-                  final msg = await ref
-                      .read(friendsProvider.notifier)
-                      .addFriend(phone);
+                  final msg = await ref.read(friendsProvider.notifier).addFriend(account);
                   if (mounted) {
                     ScaffoldMessenger.of(
                       context,
@@ -131,7 +178,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
             )
           : state.friends.isEmpty &&
                 state.pendingRequests.isEmpty &&
-                state.outgoingRequests.isEmpty
+                state.outgoingRequests.isEmpty &&
+                state.incomingRelationshipRequests.isEmpty &&
+                state.outgoingRelationshipRequests.isEmpty
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(28),
@@ -170,7 +219,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        '通过手机号添加好友，即可互相查看课表',
+                        '通过账号添加好友，即可互相查看课表',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
@@ -243,6 +292,76 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                     (f) => _FriendCard(
                       friend: f,
                       subtitle: '等待 ${f.nickname} 接受你的好友申请',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (state.incomingRelationshipRequests.isNotEmpty) ...[
+                  const _SectionLabel('关系申请'),
+                  ...state.incomingRelationshipRequests.map(
+                    (r) => _FriendCard(
+                      friend: FriendInfo(
+                        id: r.id,
+                        friendId: r.friendId,
+                        nickname: r.nickname,
+                        avatarUrl: r.avatarUrl,
+                        schoolName: r.schoolName,
+                        status: r.status,
+                      ),
+                      subtitle: '请求与你绑定关系：${r.relationLabel}',
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextButton(
+                            onPressed: () async {
+                              final msg = await ref
+                                  .read(friendsProvider.notifier)
+                                  .rejectRelationshipRequest(r.id);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(SnackBar(content: Text(msg)));
+                              }
+                            },
+                            child: const Text(
+                              '拒绝',
+                              style: TextStyle(
+                                color: AppColorTokens.textSecondary,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              final msg = await ref
+                                  .read(friendsProvider.notifier)
+                                  .acceptRelationshipRequest(r.id);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(SnackBar(content: Text(msg)));
+                              }
+                            },
+                            child: const Text('接受'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (state.outgoingRelationshipRequests.isNotEmpty) ...[
+                  const _SectionLabel('已发送关系绑定'),
+                  ...state.outgoingRelationshipRequests.map(
+                    (r) => _FriendCard(
+                      friend: FriendInfo(
+                        id: r.id,
+                        friendId: r.friendId,
+                        nickname: r.nickname,
+                        avatarUrl: r.avatarUrl,
+                        schoolName: r.schoolName,
+                        status: r.status,
+                      ),
+                      subtitle: '等待 ${r.nickname} 确认关系：${r.relationLabel}',
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -350,11 +469,11 @@ class _FriendCard extends StatelessWidget {
 
 class _Avatar extends StatelessWidget {
   final String name;
-  final double size;
-  const _Avatar({required this.name, this.size = 44});
+  const _Avatar({required this.name});
 
   @override
   Widget build(BuildContext context) {
+    const size = 44.0;
     return Container(
       width: size,
       height: size,

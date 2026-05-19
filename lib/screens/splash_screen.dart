@@ -36,12 +36,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _checkAuth() async {
-    // Wait for SharedPreferences to load + animation
-    await Future.delayed(const Duration(milliseconds: 2000));
-    // Force re-read auth state
-    ref.read(authProvider.notifier);
-    // Wait one more frame for state to propagate
-    await Future.delayed(const Duration(milliseconds: 100));
+    // Wait for auth to initialize, max 900ms
+    final start = DateTime.now();
+    while (DateTime.now().difference(start).inMilliseconds < 900) {
+      if (!mounted) return;
+      final auth = ref.read(authProvider);
+      if (auth.isInitialized) break;
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
+    // Minimum splash visibility 500ms
+    final elapsed = DateTime.now().difference(start).inMilliseconds;
+    if (elapsed < 500) await Future.delayed(Duration(milliseconds: 500 - elapsed));
     if (!mounted) return;
     final auth = ref.read(authProvider);
     context.go(auth.isLoggedIn ? '/daily' : '/login');
@@ -68,27 +73,21 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   width: 88,
                   height: 88,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppColorTokens.primary,
-                        AppColorTokens.primaryGradientEnd,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
                     borderRadius: BorderRadius.circular(22),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColorTokens.primary.withAlpha(80),
+                        color: AppColorTokens.primary.withAlpha(40),
                         blurRadius: 24,
                         offset: const Offset(0, 12),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.calendar_month_rounded,
-                    size: 44,
-                    color: Colors.white,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Image.asset(
+                      'assets/images/app_icon.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),

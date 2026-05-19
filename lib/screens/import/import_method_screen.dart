@@ -9,6 +9,7 @@ import '../../config/theme.dart';
 import '../../models/course.dart';
 import '../../providers/schedule_provider.dart';
 import '../../widgets/glass_card.dart';
+import 'import_start_date_helper.dart';
 import '../../widgets/import_target_sheet.dart';
 import '../../widgets/liquid_scaffold.dart';
 
@@ -19,13 +20,13 @@ class ImportMethodScreen extends ConsumerWidget {
 
   Future<void> _importJsonFile(BuildContext context, WidgetRef ref) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final pickerResult = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      if (result == null || result.files.isEmpty) return;
-      final bytes = result.files.single.bytes;
-      if (bytes == null && result.files.single.path == null) return;
+      if (pickerResult == null || pickerResult.files.isEmpty) return;
+      final bytes = pickerResult.files.single.bytes;
+      if (bytes == null && pickerResult.files.single.path == null) return;
       final content = bytes != null ? utf8.decode(bytes) : '';
       if (content.isEmpty) return;
 
@@ -71,7 +72,7 @@ class ImportMethodScreen extends ConsumerWidget {
       if (choice == null) return;
       if (!context.mounted) return;
 
-      final msg = await ref.read(scheduleProvider.notifier).importCourses(
+      final importResult = await ref.read(scheduleProvider.notifier).importCourses(
             courses,
             mode: choice.mode,
             newTableName: choice.newTableName,
@@ -79,13 +80,16 @@ class ImportMethodScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(msg),
-            backgroundColor: msg.contains('失败')
+            content: Text(importResult.message),
+            backgroundColor: importResult.message.contains('失败')
                 ? AppColorTokens.warning
                 : AppColorTokens.success,
           ),
         );
-        if (!msg.contains('失败')) context.go('/schedule');
+        if (importResult.isSuccess) {
+          await promptForMissingStartDateIfNeeded(context, ref, importResult);
+          if (context.mounted) context.go('/schedule');
+        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -120,7 +124,7 @@ class ImportMethodScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                '支持教务系统一键导入、AI拍照识图或 JSON 文件导入',
+                '支持教务系统一键导入、AI 辅助导入或 JSON 文件导入',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColorTokens.textSecondary,
@@ -143,9 +147,9 @@ class ImportMethodScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 14),
                     _ImportCard(
-                      icon: Icons.camera_alt_outlined,
-                      title: 'AI 拍照识图',
-                      subtitle: '拍照或上传课表截图，智能识别',
+                      icon: Icons.auto_awesome_outlined,
+                      title: 'AI 辅助导入',
+                      subtitle: '将课表截图发给 AI，粘贴返回的 JSON 即可导入',
                       color: AppColorTokens.primaryGradientEnd,
                       onTap: () => context.push('/import/screenshot'),
                     ),

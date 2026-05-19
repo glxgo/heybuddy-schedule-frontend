@@ -33,6 +33,14 @@ class AppColorTokens {
   static const Color darkTextTertiary = Color(0xFFC98A98);
   static const Color darkDivider = Color(0xFF4B2530);
   static const Color darkGlassBorder = Color(0x26FFFFFF);
+
+  static const Color authAction = Color(0xFF49C9FF);
+  static const Color authActionLight = Color(0xFF8BDDFF);
+  static const authActionGradient = LinearGradient(
+    colors: [authAction, authActionLight],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
 
 class AppBackgroundTheme {

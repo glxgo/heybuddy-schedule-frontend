@@ -6,6 +6,7 @@ class Anniversary {
   final bool canEdit;
   final DateTime targetDate;
   final DateTime createdAt;
+  final String visibility;
 
   const Anniversary({
     required this.id,
@@ -15,6 +16,7 @@ class Anniversary {
     required this.canEdit,
     required this.targetDate,
     required this.createdAt,
+    this.visibility = 'shared',
   });
 
   factory Anniversary.fromJson(Map<String, dynamic> json, {String friendId = ''}) {
@@ -26,17 +28,20 @@ class Anniversary {
       canEdit: json['can_edit'] == true || json['canEdit'] == true,
       targetDate: DateTime.tryParse(json['target_date'] as String? ?? '') ?? DateTime.now(),
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ?? DateTime.now(),
+      visibility: json['visibility'] as String? ?? 'shared',
     );
   }
 
   Map<String, dynamic> toCreateJson() => {
     'name': name,
     'targetDate': targetDate.toIso8601String().substring(0, 10),
+    'visibility': visibility,
   };
 
   Map<String, dynamic> toUpdateJson() => {
     'name': name,
     'targetDate': targetDate.toIso8601String().substring(0, 10),
+    'visibility': visibility,
   };
 
   bool get isPast => targetDate.isBefore(DateTime.now()) || _isSameDay(targetDate, DateTime.now());

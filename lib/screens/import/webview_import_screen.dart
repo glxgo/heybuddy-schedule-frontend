@@ -206,7 +206,7 @@ window.AndroidBridgePromise = {
     final lookupId = widget.schoolId.isNotEmpty ? widget.schoolId : widget.systemType;
     _adapter = await _adapterService.findAdapter(lookupId);
     if (_adapter != null) {
-      _adapterJs = await _adapterService.loadAdapterJs(_adapter!);
+      _adapterJs = await _adapterService.loadAdapterJs(_adapter!.jsFile);
     }
   }
 

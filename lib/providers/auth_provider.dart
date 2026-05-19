@@ -12,23 +12,27 @@ class AuthResult {
 class AuthState {
   final bool isLoggedIn;
   final bool isLoading;
+  final bool isInitialized;
   final String? token;
   final String? userId;
   const AuthState({
     this.isLoggedIn = false,
     this.isLoading = false,
+    this.isInitialized = false,
     this.token,
     this.userId,
   });
   AuthState copyWith({
     bool? isLoggedIn,
     bool? isLoading,
+    bool? isInitialized,
     String? token,
     String? userId,
   }) {
     return AuthState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       isLoading: isLoading ?? this.isLoading,
+      isInitialized: isInitialized ?? this.isInitialized,
       token: token ?? this.token,
       userId: userId ?? this.userId,
     );
@@ -49,7 +53,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final userId = prefs.getString(_userIdKey);
     if (token != null) {
       ApiService.instance.setToken(token);
-      state = state.copyWith(isLoggedIn: true, token: token, userId: userId);
+      state = state.copyWith(isLoggedIn: true, token: token, userId: userId, isInitialized: true);
+    } else {
+      state = state.copyWith(isInitialized: true);
     }
   }
 
@@ -61,19 +67,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<AuthResult> login({
-    required String phone,
+    required String account,
     required String password,
   }) async {
     state = state.copyWith(isLoading: true);
-
     final api = ApiService.instance;
-    final res = await api.post(
-      '/auth/login',
-      data: {'phone': phone, 'password': password},
-    );
-
+    final res = await api.post('/auth/login', data: {'account': account, 'password': password});
     state = state.copyWith(isLoading: false);
-
     if (res.isSuccess && res.data != null) {
       final token = res.data['token'] as String;
       final userId = res.data['userId'] as String;
@@ -81,12 +81,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isLoggedIn: true, token: token, userId: userId);
       return const AuthResult(success: true, message: '登录成功');
     }
-
     return AuthResult(success: false, message: res.msg);
   }
 
   Future<AuthResult> register({
-    required String phone,
+    required String channel,
+    required String target,
+    required String code,
+    required String account,
     required String password,
     required String nickname,
   }) async {
@@ -95,7 +97,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final api = ApiService.instance;
     final res = await api.post(
       '/auth/register',
-      data: {'phone': phone, 'password': password, 'nickname': nickname},
+      data: {
+        'channel': channel,
+        'target': target,
+        'code': code,
+        'account': account,
+        'password': password,
+        'nickname': nickname,
+      },
     );
 
     state = state.copyWith(isLoading: false);
@@ -114,6 +123,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void applySession(String token, String userId) {
     _saveSession(token, userId);
     state = state.copyWith(isLoggedIn: true, token: token, userId: userId);
+  }
+
+  Future<Map<String, dynamic>?> identifyAccount(String account) async {
+    final res = await ApiService.instance.post('/auth/forgot-password/identify', data: {'account': account});
+    if (res.isSuccess && res.data != null) return res.data as Map<String, dynamic>;
+    return null;
+  }
+
+  Future<AuthResult> sendVerificationCode({
+    required String purpose,
+    required String channel,
+    required String target,
+    String? deviceId,
+  }) async {
+    final api = ApiService.instance;
+    final res = await api.post('/auth/verification-code/send', data: {
+      'purpose': purpose,
+      'channel': channel,
+      'target': target,
+      'deviceId': deviceId ?? '',
+    });
+    return AuthResult(success: res.isSuccess, message: res.msg);
   }
 
   Future<AuthResult> sendForgotPasswordCode(String phone) async {
@@ -154,6 +185,37 @@ class AuthNotifier extends StateNotifier<AuthState> {
         success: false,
         message: '密码重置服务暂不可用，请稍后重试',
       );
+    }
+    return AuthResult(success: false, message: res.msg);
+  }
+
+  Future<AuthResult> resetPasswordV2({
+    required String account,
+    required String channel,
+    required String target,
+    required String code,
+    required String password,
+  }) async {
+    final api = ApiService.instance;
+    final res = await api.post('/auth/forgot-password/reset', data: {
+      'account': account,
+      'channel': channel,
+      'target': target,
+      'code': code,
+      'password': password,
+    });
+    return AuthResult(success: res.isSuccess, message: res.msg);
+  }
+
+  Future<AuthResult> updateAccount(String newAccount) async {
+    final api = ApiService.instance;
+    final res = await api.put('/user/profile', data: {'account': newAccount});
+    if (res.isSuccess && res.data != null) {
+      final token = res.data['token'] as String;
+      final userId = res.data['userId'] as String;
+      await _saveSession(token, userId);
+      state = state.copyWith(isLoggedIn: true, token: token, userId: userId);
+      return const AuthResult(success: true, message: '账号修改成功');
     }
     return AuthResult(success: false, message: res.msg);
   }

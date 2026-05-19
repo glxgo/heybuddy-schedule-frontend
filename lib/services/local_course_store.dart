@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../config/constants.dart';
 import '../models/course.dart';
 
 class LocalCourseStore {
@@ -163,28 +164,6 @@ class LocalCourseStore {
     });
   }
 
-  Future<void> upsertCourses(List<Course> courses) async {
-    if (_usePrefsFallback) {
-      final existing = await _getCoursesFromPrefs();
-      final byId = {for (final course in existing) course.id: course};
-      for (final course in courses) {
-        byId[course.id] = course;
-      }
-      return _saveCoursesToPrefs(byId.values.toList());
-    }
-
-    final db = await _getDatabase();
-    await db.transaction((txn) async {
-      for (final course in courses) {
-        await txn.insert(
-          _tableName,
-          course.toJson(),
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
-      }
-    });
-  }
-
   // ---- Tables ----
 
   Future<List<CourseTable>> getTables() async {
@@ -220,6 +199,7 @@ class LocalCourseStore {
     String name, {
     String color = '#5B6AF0',
     String semester = '2025-2026-2',
+    List<TimeSlot>? timeSlots,
   }) async {
     final db = await _getDatabase();
     final id = DateTime.now().microsecondsSinceEpoch.toString();
@@ -228,6 +208,7 @@ class LocalCourseStore {
       name: name,
       color: color,
       semester: semester,
+      timeSlots: timeSlots ?? AppConstants.defaultTimeSlots,
     );
     await db.insert(_tablesTableName, ct.toJson());
     return ct;
@@ -237,6 +218,7 @@ class LocalCourseStore {
     String? startDate,
     bool clearStartDate = false,
     int? totalWeeks,
+    List<TimeSlot>? timeSlots,
   }) async {
     final db = await _getDatabase();
     final updates = <String, dynamic>{};
@@ -246,6 +228,11 @@ class LocalCourseStore {
       updates['start_date'] = startDate;
     }
     if (totalWeeks != null) updates['total_weeks'] = totalWeeks;
+    if (timeSlots != null) {
+      updates['time_slots_json'] = jsonEncode(
+        timeSlots.map((slot) => slot.toJson()).toList(),
+      );
+    }
     if (updates.isNotEmpty) {
       await db.update(
         _tablesTableName,
@@ -295,7 +282,7 @@ class LocalCourseStore {
     final dbPath = path.join(dir.path, _dbName);
     _database = await openDatabase(
       dbPath,
-      version: 5,
+      version: 6,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE $_tableName (
@@ -323,7 +310,8 @@ class LocalCourseStore {
             color TEXT NOT NULL,
             semester TEXT NOT NULL,
             start_date TEXT,
-            total_weeks INTEGER NOT NULL DEFAULT ${CourseTable.defaultTotalWeeks}
+            total_weeks INTEGER NOT NULL DEFAULT ${CourseTable.defaultTotalWeeks},
+            time_slots_json TEXT
           )
         ''');
         await db.execute('''
@@ -411,6 +399,11 @@ class LocalCourseStore {
               PRIMARY KEY (friendId, semester)
             )
           ''');
+        }
+        if (oldVersion < 6) {
+          await db.execute(
+            'ALTER TABLE $_tablesTableName ADD COLUMN time_slots_json TEXT',
+          );
         }
       },
     );

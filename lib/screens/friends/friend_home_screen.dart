@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../models/anniversary.dart';
 import '../../providers/anniversary_provider.dart';
 import '../../providers/friends_provider.dart';
+import '../../services/api_service.dart';
 import '../../widgets/bottom_sheet_helper.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/liquid_scaffold.dart';
@@ -34,6 +35,26 @@ class FriendHomeScreen extends ConsumerStatefulWidget {
 
 class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
   late String _displayName;
+  Map<String, dynamic>? _relationship;
+
+  static const _relationLabels = {
+    'couple': '情侣',
+    'bestie': '闺蜜',
+    'roommate': '室友',
+    'classmate': '同学',
+    'other': '好友',
+  };
+
+  String _labelFor(String type) => _relationLabels[type] ?? type;
+
+  int? get _boundDays {
+    if (_relationship == null || _relationship!['status'] != 'accepted') return null;
+    final created = _relationship!['created_at'];
+    if (created == null) return null;
+    final boundAt = DateTime.tryParse(created.toString());
+    if (boundAt == null) return null;
+    return DateTime.now().difference(boundAt).inDays;
+  }
 
   @override
   void initState() {
@@ -41,12 +62,21 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
     _displayName = widget.friendName;
     Future.microtask(() {
       ref.read(anniversaryProvider.notifier).loadForFriend(widget.friendId);
+      _loadRelationship();
     });
+  }
+
+  Future<void> _loadRelationship() async {
+    final res = await ref.read(apiServiceProvider).get('/friends/${widget.friendId}/relationship');
+    if (mounted && res.isSuccess) {
+      setState(() => _relationship = res.data is Map ? Map<String, dynamic>.from(res.data) : null);
+    }
   }
 
   Future<void> _addAnniversary() async {
     final nameCtrl = TextEditingController();
     DateTime date = DateTime.now();
+    String visibility = 'shared';
 
     await showModalBottomSheet<bool>(
       context: context,
@@ -100,7 +130,7 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                       decoration: const InputDecoration(
                         labelText: '纪念日名称',
                         hintText: '例如：相恋纪念日',
-                        prefixIcon: Icon(Icons.favorite_border_rounded),
+                        prefixIcon: Icon(Icons.calendar_month_rounded),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -147,6 +177,27 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Text(
+                          '可见性：',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('双方可见'),
+                          selected: visibility == 'shared',
+                          onSelected: (_) => setSheetState(() => visibility = 'shared'),
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('仅自己可见'),
+                          selected: visibility == 'private',
+                          onSelected: (_) => setSheetState(() => visibility = 'private'),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 20),
                     SpringButton(
                       onTap: () async {
@@ -160,7 +211,7 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                         Navigator.pop(ctx, true);
                         final msg = await ref
                             .read(anniversaryProvider.notifier)
-                            .add(widget.friendId, name, date);
+                            .add(widget.friendId, name, date, visibility: visibility);
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(msg)),
@@ -246,6 +297,149 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
     );
   }
 
+  Future<void> _editAnniversary(Anniversary anniversary) async {
+    final nameCtrl = TextEditingController(text: anniversary.name);
+    DateTime date = anniversary.targetDate;
+    String visibility = anniversary.visibility;
+
+    await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          return buildAppBottomSheetFrame(
+            ctx,
+            alignment: Alignment.center,
+            left: 18,
+            right: 18,
+            top: 48,
+            maxWidth: 480,
+            maxHeightFactor: 0.78,
+            bottomNavClearance: 72,
+            child: GlassCard(
+              borderRadius: 28,
+              padding: const EdgeInsets.all(22),
+              elevation: 1.5,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: 38, height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColorTokens.primary.withAlpha(90),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    const Text('编辑纪念日', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 8),
+                    const Text('修改纪念日信息', style: TextStyle(fontSize: 13, color: AppColorTokens.textSecondary)),
+                    const SizedBox(height: 18),
+                    TextField(
+                      controller: nameCtrl,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        labelText: '纪念日名称',
+                        prefixIcon: Icon(Icons.calendar_month_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GlassCard(
+                      borderRadius: 20,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: ctx,
+                          initialDate: date,
+                          firstDate: DateTime(1970),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) setSheetState(() => date = picked);
+                      },
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today_rounded, size: 20, color: AppColorTokens.primary),
+                          const SizedBox(width: 12),
+                          Text('${date.year}年${date.month}月${date.day}日', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                          const Spacer(),
+                          const Text('选择日期', style: TextStyle(fontSize: 13, color: AppColorTokens.textTertiary)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Text('可见性：', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('双方可见'),
+                          selected: visibility == 'shared',
+                          onSelected: (_) => setSheetState(() => visibility = 'shared'),
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('仅自己可见'),
+                          selected: visibility == 'private',
+                          onSelected: (_) => setSheetState(() => visibility = 'private'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    SpringButton(
+                      onTap: () async {
+                        final name = nameCtrl.text.trim();
+                        if (name.isEmpty) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('请输入纪念日名称')));
+                          return;
+                        }
+                        Navigator.pop(ctx, true);
+                        final msg = await ref.read(anniversaryProvider.notifier).update(
+                          widget.friendId, anniversary.id, name, date,
+                          visibility: visibility,
+                        );
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+                      },
+                      child: const Text('保存'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _bindRelationship() async {
+    final types = ['couple', 'bestie', 'roommate', 'classmate', 'other'];
+    final labels = ['情侣', '闺蜜', '室友', '同学', '其他'];
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(padding: EdgeInsets.all(16), child: Text('选择关系类型', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
+            ...List.generate(types.length, (i) => ListTile(
+              title: Text(labels[i]),
+              leading: Icon(i == 0 ? Icons.favorite : i == 1 ? Icons.people : Icons.star, color: AppColorTokens.primary),
+              onTap: () => Navigator.pop(ctx, types[i]),
+            )),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return;
+    final api = ref.read(apiServiceProvider);
+    final res = await api.post('/friends/${widget.friendId}/relationship', data: {'relationType': result});
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res.msg)));
+  }
+
   void _showMenu() {
     showModalBottomSheet(
       context: context,
@@ -292,6 +486,12 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.link_rounded, color: AppColorTokens.primary),
+                  title: const Text('绑定关系', style: TextStyle(fontWeight: FontWeight.w700)),
+                  onTap: () { Navigator.pop(ctx); _bindRelationship(); },
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 ListTile(
                   leading: const Icon(
@@ -351,9 +551,23 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
     );
   }
 
+  Widget _buildInitial() {
+    return Center(
+      child: Text(
+        _displayName.isNotEmpty ? _displayName[0] : '?',
+        style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.w900),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final anniState = ref.watch(anniversaryProvider);
+    final anniversaryStateMatchesFriend =
+        anniState.friendId.isEmpty || anniState.friendId == widget.friendId;
+    final anniversaries = anniversaryStateMatchesFriend
+        ? anniState.anniversaries
+        : const <Anniversary>[];
     final showOriginalNickname =
         widget.originalNickname != null &&
         widget.originalNickname!.isNotEmpty &&
@@ -397,12 +611,9 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                   height: 60,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppColorTokens.primary,
-                        AppColorTokens.primaryGradientEnd,
-                      ],
-                    ),
+                    gradient: widget.avatarUrl == null ? const LinearGradient(
+                      colors: [AppColorTokens.primary, AppColorTokens.primaryGradientEnd],
+                    ) : null,
                     boxShadow: [
                       BoxShadow(
                         color: AppColorTokens.primary.withAlpha(40),
@@ -411,16 +622,9 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Text(
-                      _displayName.isNotEmpty ? _displayName[0] : '?',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
+                  child: widget.avatarUrl != null
+                      ? ClipOval(child: Image.network(widget.avatarUrl!, width: 60, height: 60, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _buildInitial()))
+                      : _buildInitial(),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -455,6 +659,24 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                           ),
                         ),
                       ],
+                      const SizedBox(height: 10),
+                      if (_relationship != null && _relationship!['status'] == 'accepted')
+                        Row(
+                          children: [
+                            Icon(Icons.favorite, size: 16, color: AppColorTokens.primary),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${_labelFor(_relationship!['relation_type'] ?? 'friend')} · 已绑定 ${_boundDays ?? 0} 天',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColorTokens.primary),
+                            ),
+                          ],
+                        )
+                      else
+                        OutlinedButton.icon(
+                          onPressed: _bindRelationship,
+                          icon: const Icon(Icons.link_rounded, size: 18),
+                          label: const Text('绑定关系'),
+                        ),
                     ],
                   ),
                 ),
@@ -512,7 +734,7 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                 child: CircularProgressIndicator(color: AppColorTokens.primary),
               ),
             )
-          else if (anniState.error != null && anniState.anniversaries.isEmpty)
+          else if (anniState.error != null && anniversaries.isEmpty)
             GlassCard(
               borderRadius: 22,
               padding: const EdgeInsets.symmetric(
@@ -530,7 +752,7 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
                 ),
               ),
             )
-          else if (anniState.anniversaries.isEmpty)
+          else if (anniversaries.isEmpty)
             GlassCard(
               borderRadius: 22,
               padding: const EdgeInsets.symmetric(
@@ -548,10 +770,11 @@ class _FriendHomeScreenState extends ConsumerState<FriendHomeScreen> {
               ),
             )
           else
-            ...anniState.anniversaries.map(
+            ...anniversaries.map(
               (a) => _AnniversaryCard(
                 anniversary: a,
                 onDelete: a.canEdit ? () => _deleteAnniversary(a) : null,
+                onEdit: a.canEdit ? () => _editAnniversary(a) : null,
               ),
             ),
         ],
@@ -629,8 +852,9 @@ class _SectionLabel extends StatelessWidget {
 class _AnniversaryCard extends StatelessWidget {
   final Anniversary anniversary;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
-  const _AnniversaryCard({required this.anniversary, this.onDelete});
+  const _AnniversaryCard({required this.anniversary, this.onDelete, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -669,7 +893,7 @@ class _AnniversaryCard extends StatelessWidget {
                   ],
                 ),
                 child: const Icon(
-                  Icons.favorite_rounded,
+                  Icons.calendar_month_rounded,
                   color: Colors.white,
                   size: 22,
                 ),
@@ -685,6 +909,13 @@ class _AnniversaryCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onEdit != null)
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 18, color: AppColorTokens.textTertiary),
+                  onPressed: onEdit,
+                  tooltip: '编辑纪念日',
+                  visualDensity: VisualDensity.compact,
+                ),
               if (onDelete != null)
                 IconButton(
                   icon: const Icon(
@@ -715,12 +946,29 @@ class _AnniversaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            dateStr,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColorTokens.textSecondary,
-            ),
+          Row(
+            children: [
+              Text(
+                dateStr,
+                style: const TextStyle(fontSize: 13, color: AppColorTokens.textSecondary),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: anniversary.visibility == 'private' ? AppColorTokens.warning.withAlpha(30) : AppColorTokens.success.withAlpha(30),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  anniversary.visibility == 'private' ? '仅自己可见' : '双方可见',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: anniversary.visibility == 'private' ? AppColorTokens.warning : AppColorTokens.success,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

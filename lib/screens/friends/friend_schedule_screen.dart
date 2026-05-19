@@ -23,27 +23,34 @@ class FriendScheduleScreen extends ConsumerStatefulWidget {
 
 class _FriendScheduleScreenState extends ConsumerState<FriendScheduleScreen> {
   int _currentWeek = 1;
+  int _actualCurrentWeek = 1;
   bool _loading = true;
+  bool _loadFailed = false;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      final notifier = ref.read(scheduleProvider.notifier);
-      if (ref.read(scheduleProvider).currentTable == null) {
-        await notifier.init();
-      }
-      final table = ref.read(scheduleProvider).currentTable;
-      _currentWeek = estimateCurrentWeek(null, table);
-      await notifier.hydrateCachedFriendCourses(widget.friendId);
-      final cached = ref.read(scheduleProvider).friendCoursesMap[widget.friendId] ?? const [];
-      if (mounted && cached.isNotEmpty) {
-        setState(() => _loading = false);
-      }
-      await notifier.refreshFriendCourses(widget.friendId);
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+    Future.microtask(_loadFriendSchedule);
+  }
+
+  Future<void> _loadFriendSchedule() async {
+    final notifier = ref.read(scheduleProvider.notifier);
+    if (ref.read(scheduleProvider).currentTable == null) {
+      await notifier.init();
+    }
+    final table = ref.read(scheduleProvider).currentTable;
+    _currentWeek = estimateCurrentWeek(null, table);
+    _actualCurrentWeek = _currentWeek;
+    await notifier.hydrateCachedFriendCourses(widget.friendId);
+    final cached = ref.read(scheduleProvider).friendCoursesMap[widget.friendId] ?? const [];
+    if (mounted && cached.isNotEmpty) {
+      setState(() => _loading = false);
+    }
+    final ok = await notifier.refreshFriendCourses(widget.friendId);
+    if (!mounted) return;
+    setState(() {
+      _loading = false;
+      _loadFailed = !ok && cached.isEmpty;
     });
   }
 
@@ -76,33 +83,73 @@ class _FriendScheduleScreenState extends ConsumerState<FriendScheduleScreen> {
                     vertical: 34,
                   ),
                   elevation: 1.3,
-                  child: const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.calendar_view_week_rounded,
-                        size: 42,
-                        color: AppColorTokens.primary,
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        '好友暂未导入课表',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                  child: _loadFailed
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.cloud_off_rounded,
+                              size: 42,
+                              color: AppColorTokens.error,
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              '好友课表加载失败',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              scheduleState.error ?? '请稍后重试一下',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColorTokens.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  _loading = true;
+                                  _loadFailed = false;
+                                });
+                                _loadFriendSchedule();
+                              },
+                              icon: const Icon(Icons.refresh_rounded),
+                              label: const Text('重试'),
+                            ),
+                          ],
+                        )
+                      : const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_view_week_rounded,
+                              size: 42,
+                              color: AppColorTokens.primary,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              '好友暂未导入课表',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              '等对方同步课表后，这里就会显示啦',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColorTokens.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        '等对方同步课表后，这里就会显示啦',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColorTokens.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             )
@@ -118,7 +165,9 @@ class _FriendScheduleScreenState extends ConsumerState<FriendScheduleScreen> {
               },
               child: WeeklyGrid(
                 courses: friendCourses,
+                timeSlots: scheduleState.getFriendTimeSlots(widget.friendId),
                 currentWeek: _currentWeek,
+                isCurrentWeek: _currentWeek == _actualCurrentWeek,
                 onWeekChanged: (w) {
                   final maxWeeks =
                       ref.read(scheduleProvider).currentTable?.totalWeeks ?? 20;

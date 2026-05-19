@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class AppConstants {
   AppConstants._();
 
@@ -53,23 +55,29 @@ class AppConstants {
     '周日',
   ];
 
-  static const List<String> periodPairs = [
-    '1-2',
-    '3-4',
-    '5-6',
-    '7-8',
-    '9-10',
-    '11-12',
-  ];
-
-  static const List<({String start, String end})> periodPairTimes = [
-    (start: '08:00', end: '09:35'),
-    (start: '09:50', end: '11:25'),
-    (start: '11:30', end: '12:15'),
-    (start: '14:00', end: '15:35'),
-    (start: '15:50', end: '17:25'),
-    (start: '19:00', end: '21:25'),
-  ];
+  static List<TimeSlot> resolveTimeSlots([List<TimeSlot>? customSlots]) {
+    final byPeriod = <int, TimeSlot>{
+      for (final slot in defaultTimeSlots) slot.period: slot,
+    };
+    if (customSlots != null) {
+      for (final slot in customSlots) {
+        if (slot.period > 0) {
+          byPeriod[slot.period] = slot;
+        }
+      }
+    }
+    var maxPeriod = defaultTimeSlots.length;
+    for (final period in byPeriod.keys) {
+      if (period > maxPeriod) {
+        maxPeriod = period;
+      }
+    }
+    return List.generate(
+      maxPeriod,
+      (index) => byPeriod[index + 1] ??
+          TimeSlot(period: index + 1, start: '--:--', end: '--:--'),
+    );
+  }
 }
 
 class TimeSlot {
@@ -83,6 +91,64 @@ class TimeSlot {
     required this.end,
   });
 
+  factory TimeSlot.fromJson(Map<String, dynamic> json) {
+    return TimeSlot(
+      period: _parseInt(json['number'] ?? json['period']) ?? 0,
+      start: _normalizeTime(json['startTime'] ?? json['start']),
+      end: _normalizeTime(json['endTime'] ?? json['end']),
+    );
+  }
+
+  static List<TimeSlot> parseList(
+    dynamic value, {
+    List<TimeSlot> fallback = AppConstants.defaultTimeSlots,
+  }) {
+    dynamic decoded = value;
+    if (decoded is String && decoded.trim().isNotEmpty) {
+      try {
+        decoded = jsonDecode(decoded);
+      } catch (_) {
+        return fallback;
+      }
+    }
+    if (decoded is! List) return fallback;
+
+    final byPeriod = <int, TimeSlot>{};
+    for (final item in decoded) {
+      if (item is! Map) continue;
+      final slot = TimeSlot.fromJson(Map<String, dynamic>.from(item));
+      if (slot.period <= 0 || slot.start.isEmpty || slot.end.isEmpty) continue;
+      byPeriod[slot.period] = slot;
+    }
+    if (byPeriod.isEmpty) return fallback;
+
+    final periods = byPeriod.keys.toList()..sort();
+    return periods.map((period) => byPeriod[period]!).toList();
+  }
+
+  Map<String, dynamic> toJson() => {
+        'number': period,
+        'startTime': start,
+        'endTime': end,
+      };
+
   String get label => '第$period节';
   String get timeRange => '$start-$end';
+
+  static int? _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '');
+  }
+
+  static String _normalizeTime(dynamic value) {
+    final raw = value?.toString().trim() ?? '';
+    if (raw.isEmpty) return '';
+    final match = RegExp(r'^(\d{1,2}):(\d{1,2})').firstMatch(raw);
+    if (match == null) return raw;
+    final hour = int.tryParse(match.group(1) ?? '');
+    final minute = int.tryParse(match.group(2) ?? '');
+    if (hour == null || minute == null) return raw;
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+  }
 }

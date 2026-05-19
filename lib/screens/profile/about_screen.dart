@@ -7,7 +7,7 @@ import '../../widgets/liquid_scaffold.dart';
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  static const _repoUrl = 'https://github.com/glxgo/heybuddy-schedule';
+  static const _repoUrl = 'https://github.com/glxgo/heybuddy-schedule-frontend';
   static const _version = '1.0.0';
 
   @override

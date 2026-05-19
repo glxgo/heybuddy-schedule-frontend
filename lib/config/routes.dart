@@ -15,6 +15,7 @@ import '../screens/chat/chat_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/schedule/table_manage_screen.dart';
 import '../screens/profile/about_screen.dart';
+import '../screens/profile/announcements_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/friends/friend_home_screen.dart';
 import '../screens/friends/friend_schedule_screen.dart';
@@ -83,6 +84,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/table-manage',
       builder: (context, state) => const TableManageScreen(),
+    ),
+    GoRoute(
+      path: '/announcements',
+      builder: (context, state) => const AnnouncementsScreen(),
     ),
     GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
     GoRoute(

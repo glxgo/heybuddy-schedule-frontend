@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ApiService {
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://example.com/api',
+    defaultValue: 'https://api.glxgo.xin/api',
   );
   final Dio _dio;
   String? _token;
@@ -104,13 +104,15 @@ class ApiResponse {
   final int code;
   final String msg;
   final dynamic data;
+  final String? timeSlotsJson;
 
-  const ApiResponse({required this.code, required this.msg, this.data});
+  const ApiResponse({required this.code, required this.msg, this.data, this.timeSlotsJson});
 
   factory ApiResponse.fromJson(Map<String, dynamic> json) => ApiResponse(
     code: json['code'] as int? ?? -1,
     msg: json['msg'] as String? ?? '未知错误',
     data: json['data'],
+    timeSlotsJson: json['timeSlotsJson'] as String?,
   );
 
   bool get isSuccess => code == 0;

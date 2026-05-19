@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/constants.dart';
 import '../models/course.dart';
 import '../services/api_service.dart';
 import '../services/local_course_store.dart';
+import '../services/widget_sync_service.dart';
 
 int estimateCurrentWeek([DateTime? date, CourseTable? table]) {
   final now = date ?? DateTime.now();
@@ -25,6 +28,7 @@ class ScheduleState {
   final List<Course> courses;
   final List<Course> friendCourses;
   final Map<String, List<Course>> friendCoursesMap;
+  final Map<String, List<TimeSlot>> friendTimeSlotsMap;
   final List<CourseTable> tables;
   final String currentTableId;
   final bool isLoading;
@@ -34,6 +38,7 @@ class ScheduleState {
     this.courses = const [],
     this.friendCourses = const [],
     this.friendCoursesMap = const {},
+    this.friendTimeSlotsMap = const {},
     this.tables = const [],
     this.currentTableId = Course.defaultTableId,
     this.isLoading = false,
@@ -52,6 +57,7 @@ class ScheduleState {
     List<Course>? courses,
     List<Course>? friendCourses,
     Map<String, List<Course>>? friendCoursesMap,
+    Map<String, List<TimeSlot>>? friendTimeSlotsMap,
     List<CourseTable>? tables,
     String? currentTableId,
     bool? isLoading,
@@ -61,6 +67,7 @@ class ScheduleState {
       courses: courses ?? this.courses,
       friendCourses: friendCourses ?? this.friendCourses,
       friendCoursesMap: friendCoursesMap ?? this.friendCoursesMap,
+      friendTimeSlotsMap: friendTimeSlotsMap ?? this.friendTimeSlotsMap,
       tables: tables ?? this.tables,
       currentTableId: currentTableId ?? this.currentTableId,
       isLoading: isLoading ?? this.isLoading,
@@ -83,21 +90,74 @@ class ScheduleState {
         )
         .toList();
   }
+
+  List<TimeSlot> get timeSlots =>
+      AppConstants.resolveTimeSlots(currentTable?.timeSlots);
+
+  List<TimeSlot> getFriendTimeSlots(String friendId) {
+    final slots = friendTimeSlotsMap[friendId];
+    if (slots != null && slots.isNotEmpty) return slots;
+    return timeSlots;
+  }
 }
 
 enum CourseImportMode { overwriteCurrent, createNewTable }
 
+class ImportCoursesResult {
+  final String message;
+  final String targetTableId;
+  final bool createdNewTable;
+  final bool needsStartDatePrompt;
+
+  const ImportCoursesResult({
+    required this.message,
+    required this.targetTableId,
+    required this.createdNewTable,
+    required this.needsStartDatePrompt,
+  });
+
+  bool get isSuccess => !message.contains('失败');
+}
+
 class ScheduleNotifier extends StateNotifier<ScheduleState> {
   final ApiService _api;
   final LocalCourseStore _localStore;
+  final WidgetSyncService _widgetSyncService;
 
-  ScheduleNotifier(this._api, this._localStore) : super(const ScheduleState());
+  ScheduleNotifier(
+    this._api,
+    this._localStore, {
+    WidgetSyncService? widgetSyncService,
+  }) : _widgetSyncService = widgetSyncService ?? WidgetSyncService.instance,
+       super(const ScheduleState());
 
   Future<void> init() async {
     final tables = await _localStore.getTables();
     final activeId = await _localStore.getActiveTableId();
     state = state.copyWith(tables: tables, currentTableId: activeId);
     await loadMyCourses();
+    _syncTimeSlotsToServer();
+  }
+
+  void _syncTimeSlotsToServer() {
+    final table = state.currentTable;
+    if (table == null) return;
+    final timeSlots = table.timeSlots;
+    if (timeSlots.isEmpty || _sameAsDefault(timeSlots)) return;
+    _api.put('/user/profile', data: {
+      'timeSlotsJson': jsonEncode(timeSlots.map((s) => s.toJson()).toList()),
+    });
+  }
+
+  bool _sameAsDefault(List<TimeSlot> slots) {
+    final def = AppConstants.defaultTimeSlots;
+    if (slots.length != def.length) return false;
+    for (var i = 0; i < slots.length; i++) {
+      if (slots[i].period != def[i].period ||
+          slots[i].start != def[i].start ||
+          slots[i].end != def[i].end) return false;
+    }
+    return true;
   }
 
   Future<void> loadMyCourses() async {
@@ -111,9 +171,17 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
         isLoading: false,
         error: null,
       );
+      await _syncWidget();
     } catch (_) {
       state = state.copyWith(isLoading: false, error: '本地课表读取失败');
     }
+  }
+
+  Future<void> _syncWidget() {
+    return _widgetSyncService.sync(
+      currentTable: state.currentTable,
+      courses: state.courses,
+    );
   }
 
   void _setFriendCourses(String friendId, List<Course> courses) {
@@ -132,7 +200,7 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
     }
   }
 
-  Future<void> refreshFriendCourses(String friendId) async {
+  Future<bool> refreshFriendCourses(String friendId) async {
     try {
       final res = await _api.get(
         '/friends/$friendId/courses',
@@ -149,14 +217,30 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
             )
             .toList();
         _setFriendCourses(friendId, courses);
+
+        // Parse friend's time slots from API response
+        if (res.timeSlotsJson != null && res.timeSlotsJson!.isNotEmpty) {
+          final parsed = TimeSlot.parseList(res.timeSlotsJson!);
+          if (parsed.isNotEmpty) {
+            final map = Map<String, List<TimeSlot>>.from(state.friendTimeSlotsMap);
+            map[friendId] = AppConstants.resolveTimeSlots(parsed);
+            state = state.copyWith(friendTimeSlotsMap: map);
+          }
+        }
+
         await _localStore.saveCachedFriendCourses(
           friendId,
           _currentSemester,
           courses,
         );
+        state = state.copyWith(error: null);
+        return true;
       }
+      state = state.copyWith(error: res.msg);
+      return false;
     } catch (_) {
       state = state.copyWith(error: '好友课表加载失败');
+      return false;
     }
   }
 
@@ -192,21 +276,25 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
     await _localStore.renameTable(id, name);
     final tables = await _localStore.getTables();
     state = state.copyWith(tables: tables);
+    await _syncWidget();
   }
 
   Future<void> updateTable(String id, {
     String? startDate,
     bool clearStartDate = false,
     int? totalWeeks,
+    List<TimeSlot>? timeSlots,
   }) async {
     await _localStore.updateTable(
       id,
       startDate: startDate,
       clearStartDate: clearStartDate,
       totalWeeks: totalWeeks,
+      timeSlots: timeSlots,
     );
     final tables = await _localStore.getTables();
     state = state.copyWith(tables: tables);
+    await _syncWidget();
   }
 
   // ---- Courses ----
@@ -243,15 +331,24 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
     return '已从云端恢复 ${courses.length} 门当前学期课程';
   }
 
-  Future<String> importCourses(
+  Future<ImportCoursesResult> importCourses(
     List<Course> courses, {
     CourseImportMode mode = CourseImportMode.overwriteCurrent,
     String? newTableName,
+    String? startDate,
+    int? totalWeeks,
+    List<TimeSlot>? timeSlots,
   }) async {
     var targetTableId = state.currentTableId;
     var targetSemester = _currentSemester;
+    var createdNewTable = false;
     if (courses.isEmpty) {
-      return '课程数据为空';
+      return ImportCoursesResult(
+        message: '课程数据为空',
+        targetTableId: targetTableId,
+        createdNewTable: false,
+        needsStartDatePrompt: false,
+      );
     }
 
     if (mode == CourseImportMode.createNewTable) {
@@ -262,10 +359,9 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
         semester: targetSemester,
       );
       await _localStore.setActiveTableId(created.id);
-      final tables = await _localStore.getTables();
-      state = state.copyWith(tables: tables, currentTableId: created.id);
       targetTableId = created.id;
       targetSemester = created.semester;
+      createdNewTable = true;
     }
 
     final scopedCourses = courses
@@ -278,7 +374,26 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
         .toList();
 
     await _localStore.replaceCourses(scopedCourses, tableId: targetTableId);
+    if (startDate != null || totalWeeks != null || timeSlots != null) {
+      await _localStore.updateTable(
+        targetTableId,
+        startDate: startDate,
+        totalWeeks: totalWeeks,
+        timeSlots: timeSlots,
+      );
+    }
+
+    final tables = await _localStore.getTables();
+    state = state.copyWith(tables: tables, currentTableId: targetTableId);
     await loadMyCourses();
+
+    CourseTable? targetTable;
+    try {
+      targetTable = tables.firstWhere((table) => table.id == targetTableId);
+    } catch (_) {
+      targetTable = null;
+    }
+    final needsStartDatePrompt = targetTable?.startDateTime == null;
 
     try {
       final res = await _api.post(
@@ -286,27 +401,29 @@ class ScheduleNotifier extends StateNotifier<ScheduleState> {
         data: {'courses': scopedCourses.map((c) => c.toApiJson()).toList()},
       );
       if (res.isSuccess) {
-        if (mode == CourseImportMode.createNewTable) {
-          return '已新建课表并导入 ${scopedCourses.length} 门课程';
-        }
-        return res.msg;
+        return ImportCoursesResult(
+          message: createdNewTable
+              ? '已新建课表并导入 ${scopedCourses.length} 门课程'
+              : res.msg,
+          targetTableId: targetTableId,
+          createdNewTable: createdNewTable,
+          needsStartDatePrompt: needsStartDatePrompt,
+        );
       }
-      return '已保存到本地，同步失败：${res.msg}';
+      return ImportCoursesResult(
+        message: '已保存到本地，同步失败：${res.msg}',
+        targetTableId: targetTableId,
+        createdNewTable: createdNewTable,
+        needsStartDatePrompt: needsStartDatePrompt,
+      );
     } catch (_) {
-      return '已保存到本地，同步失败';
+      return ImportCoursesResult(
+        message: '已保存到本地，同步失败',
+        targetTableId: targetTableId,
+        createdNewTable: createdNewTable,
+        needsStartDatePrompt: needsStartDatePrompt,
+      );
     }
-  }
-
-  Future<String> addCourse(Course course) async {
-    final res = await _api.post('/courses', data: course.toApiJson());
-    if (res.isSuccess) await loadMyCourses();
-    return res.msg;
-  }
-
-  Future<String> deleteCourse(String courseId) async {
-    final res = await _api.delete('/courses/$courseId');
-    if (res.isSuccess) await loadMyCourses();
-    return res.msg;
   }
 
   Future<void> saveCourse(Course course) async {

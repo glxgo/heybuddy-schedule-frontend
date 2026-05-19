@@ -46,7 +46,12 @@ class AnniversaryNotifier extends StateNotifier<AnniversaryState> {
       );
       return;
     }
-    state = state.copyWith(friendId: friendId, isLoading: true, clearError: true);
+    state = state.copyWith(
+      friendId: friendId,
+      anniversaries: const [],
+      isLoading: true,
+      clearError: true,
+    );
     final res = await _api.get('/friends/$friendId/anniversaries');
     if (res.isSuccess && res.data != null) {
       final list = (res.data as List)
@@ -59,17 +64,22 @@ class AnniversaryNotifier extends StateNotifier<AnniversaryState> {
       );
     } else {
       state = state.copyWith(
+        anniversaries: const [],
         isLoading: false,
         error: res.msg,
       );
     }
   }
 
-  Future<String> add(String friendId, String name, DateTime targetDate) async {
+  Future<String> add(String friendId, String name, DateTime targetDate, {String visibility = 'shared'}) async {
     if (friendId.isEmpty) return '纪念日参数异常，请返回好友列表后重试';
     final res = await _api.post(
       '/friends/$friendId/anniversaries',
-      data: {'name': name, 'targetDate': targetDate.toIso8601String().substring(0, 10)},
+      data: {
+        'name': name,
+        'targetDate': targetDate.toIso8601String().substring(0, 10),
+        'visibility': visibility,
+      },
     );
     if (res.isSuccess) await loadForFriend(friendId);
     if (res.code == 404 || res.msg.contains('接口不存在')) {
@@ -78,11 +88,11 @@ class AnniversaryNotifier extends StateNotifier<AnniversaryState> {
     return res.msg;
   }
 
-  Future<String> update(String friendId, String id, String name, DateTime targetDate) async {
+  Future<String> update(String friendId, String id, String name, DateTime targetDate, {String visibility = 'shared'}) async {
     if (friendId.isEmpty) return '纪念日参数异常，请返回好友列表后重试';
     final res = await _api.put(
       '/friends/$friendId/anniversaries/$id',
-      data: {'name': name, 'targetDate': targetDate.toIso8601String().substring(0, 10)},
+      data: {'name': name, 'targetDate': targetDate.toIso8601String().substring(0, 10), 'visibility': visibility},
     );
     if (res.isSuccess) await loadForFriend(friendId);
     if (res.code == 404 || res.msg.contains('接口不存在')) {

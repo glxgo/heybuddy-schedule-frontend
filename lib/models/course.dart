@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../config/constants.dart';
 
 class Course {
@@ -208,11 +210,11 @@ class Course {
           .replaceAll('，', ',')
           .replaceAll('、', ',')
           .replaceAll('第', '')
+          .replaceAll('单周', '')
+          .replaceAll('双周', '')
           .replaceAll('周', '')
           .replaceAll('(单)', '')
-          .replaceAll('(双)', '')
-          .replaceAll('单周', '')
-          .replaceAll('双周', '');
+          .replaceAll('(双)', '');
       for (final segment in normalized.split(',')) {
         final part = segment.trim();
         if (part.isEmpty) continue;
@@ -256,6 +258,7 @@ class CourseTable {
   final String semester;
   final String? startDate;
   final int totalWeeks;
+  final List<TimeSlot> timeSlots;
 
   static const defaultTotalWeeks = 20;
 
@@ -266,6 +269,7 @@ class CourseTable {
     this.semester = AppConstants.defaultSemester,
     this.startDate,
     this.totalWeeks = defaultTotalWeeks,
+    this.timeSlots = AppConstants.defaultTimeSlots,
   });
 
   CourseTable copyWith({
@@ -276,6 +280,7 @@ class CourseTable {
     String? startDate,
     bool clearStartDate = false,
     int? totalWeeks,
+    List<TimeSlot>? timeSlots,
   }) => CourseTable(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -283,6 +288,7 @@ class CourseTable {
     semester: semester ?? this.semester,
     startDate: clearStartDate ? null : (startDate ?? this.startDate),
     totalWeeks: totalWeeks ?? this.totalWeeks,
+    timeSlots: timeSlots ?? this.timeSlots,
   );
 
   DateTime? get startDateTime {
@@ -299,14 +305,31 @@ class CourseTable {
     totalWeeks: (json['total_weeks'] as num?)?.toInt() ??
         (json['totalWeeks'] as num?)?.toInt() ??
         defaultTotalWeeks,
+    timeSlots: TimeSlot.parseList(
+      json['timeSlots'] ?? json['time_slots'] ?? json['time_slots_json'],
+    ),
   );
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
     'color': color,
     'semester': semester,
-    if (startDate != null && startDate!.isNotEmpty)
-      'start_date': startDate,
+    if (startDate != null && startDate!.isNotEmpty) 'start_date': startDate,
     if (totalWeeks != defaultTotalWeeks) 'total_weeks': totalWeeks,
+    if (!_sameTimeSlots(timeSlots, AppConstants.defaultTimeSlots))
+      'time_slots_json': jsonEncode(timeSlots.map((slot) => slot.toJson()).toList()),
   };
+
+  static bool _sameTimeSlots(List<TimeSlot> a, List<TimeSlot> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].period != b[i].period ||
+          a[i].start != b[i].start ||
+          a[i].end != b[i].end) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

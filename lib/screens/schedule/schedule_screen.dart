@@ -6,6 +6,7 @@ import '../../config/constants.dart';
 import '../../config/theme.dart';
 import '../../models/course.dart';
 import '../../providers/schedule_provider.dart';
+import '../../providers/friends_provider.dart';
 import '../../widgets/course_edit_sheet.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/import_fab.dart';
@@ -22,6 +23,7 @@ class ScheduleScreen extends ConsumerStatefulWidget {
 class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   PageController? _pageController;
   int _currentWeek = 1;
+  int _actualCurrentWeek = 1;
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       await ref.read(scheduleProvider.notifier).init();
       final table = ref.read(scheduleProvider).currentTable;
       _currentWeek = estimateCurrentWeek(null, table);
+      _actualCurrentWeek = _currentWeek;
       _pageController = PageController(initialPage: _currentWeek - 1);
       if (mounted) setState(() {});
     });
@@ -74,6 +77,54 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       ),
     );
     return confirmed == true;
+  }
+
+  String? _compareFriendId;
+  String? _compareFriendName;
+
+  Future<void> _showCompareFriendSheet() async {
+    final friends = ref.read(friendsProvider).friends;
+    if (friends.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('还没有好友，请先添加好友')),
+      );
+      return;
+    }
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(padding: EdgeInsets.all(16), child: Text('选择对比好友', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
+            ...friends.map((f) => ListTile(
+              title: Text(f.nickname),
+              subtitle: f.schoolName != null ? Text(f.schoolName!, style: const TextStyle(fontSize: 12)) : null,
+              onTap: () => Navigator.pop(ctx, '${f.friendId}|${f.nickname}'),
+            )),
+            if (_compareFriendId != null)
+              ListTile(
+                leading: const Icon(Icons.close, color: AppColorTokens.error),
+                title: const Text('取消对比', style: TextStyle(color: AppColorTokens.error)),
+                onTap: () => Navigator.pop(ctx, ''),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return;
+    if (result.isEmpty) {
+      setState(() { _compareFriendId = null; _compareFriendName = null; });
+      return;
+    }
+    final parts = result.split('|');
+    setState(() {
+      _compareFriendId = parts[0];
+      _compareFriendName = parts[1];
+    });
+    final notifier = ref.read(scheduleProvider.notifier);
+    await notifier.hydrateCachedFriendCourses(parts[0]);
+    await notifier.refreshFriendCourses(parts[0]);
   }
 
   Future<void> _showCourseEdit(
@@ -237,6 +288,34 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       appBar: AppBar(
         title: Text(state.currentTable?.name ?? '课表'),
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Center(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: _showCompareFriendSheet,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(92),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColorTokens.primary.withAlpha(80)),
+                    ),
+                    child: Text(
+                      _compareFriendName == null ? '对比' : '对比 · $_compareFriendName',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: AppColorTokens.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.table_chart_outlined, size: 20),
             onPressed: () => context.push('/table-manage'),
@@ -268,15 +347,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                         final week = index + 1;
                         return WeeklyGrid(
                           courses: state.courses,
+                          timeSlots: state.timeSlots,
                           currentWeek: week,
+                          isCurrentWeek: week == _actualCurrentWeek,
                           onWeekChanged: (w) => _animateToWeek(w),
                           onTapCourse: (course) => _showCourseEdit(course),
-                          onTapEmpty: (day, start, end) => _showCourseEdit(
-                            null,
-                            prefillDay: day,
-                            prefillStart: start,
-                            prefillEnd: end,
-                          ),
+                          onTapEmpty: (day, start, end) => _showCourseEdit(null, prefillDay: day, prefillStart: start, prefillEnd: end),
+                          compareCourses: state.friendCoursesMap[_compareFriendId] ?? [],
+                          compareName: _compareFriendName,
                         );
                       },
                     ),

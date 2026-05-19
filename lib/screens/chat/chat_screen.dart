@@ -23,6 +23,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _scrollCtrl = ScrollController();
   List<Map<String, dynamic>> _messages = [];
   bool _loading = true;
+  bool _sending = false;
 
   @override
   void initState() {
@@ -53,9 +54,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Future<void> _sendMessage() async {
     final text = _msgCtrl.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _sending) return;
 
-    _msgCtrl.clear();
+    setState(() => _sending = true);
 
     final api = ref.read(apiServiceProvider);
     final res = await api.post(
@@ -67,10 +68,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       },
     );
 
+    if (!mounted) return;
     if (res.isSuccess && res.data != null) {
-      setState(() => _messages.add(res.data as Map<String, dynamic>));
+      _msgCtrl.clear();
+      setState(() {
+        _messages.add(res.data as Map<String, dynamic>);
+        _sending = false;
+      });
       _scrollToBottom();
+      return;
     }
+
+    setState(() => _sending = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(res.msg.isNotEmpty ? res.msg : '消息发送失败，请稍后重试'),
+        backgroundColor: AppColorTokens.error,
+      ),
+    );
   }
 
   void _scrollToBottom() {
@@ -168,6 +183,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       Expanded(
                         child: TextField(
                           controller: _msgCtrl,
+                          enabled: !_sending,
                           decoration: InputDecoration(
                             hintText: '发消息...',
                             filled: true,
@@ -188,14 +204,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       const SizedBox(width: 8),
                       CircleAvatar(
                         radius: 22,
-                        backgroundColor: AppColorTokens.primary,
+                        backgroundColor: _sending
+                            ? AppColorTokens.textTertiary
+                            : AppColorTokens.primary,
                         child: IconButton(
-                          icon: const Icon(
-                            Icons.send_rounded,
-                            size: 18,
-                            color: Colors.white,
-                          ),
-                          onPressed: _sendMessage,
+                          icon: _sending
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.send_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                          onPressed: _sending ? null : _sendMessage,
                         ),
                       ),
                     ],
